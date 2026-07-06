@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير الحوالات 2026 - وهج الماسة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#D4A017;--gold-d:#9A7210;--gold-l:#FDF5DC;
+  --navy:#0F1C2E;--navy2:#1A2D45;
+  --teal:#0E7490;--teal-bg:#E0F5F9;
+  --green:#166534;--green-bg:#DCFCE7;
+  --red:#991B1B;--red-bg:#FEE2E2;--red-b:#FECACA;
+  --amber:#92400E;--amber-bg:#FEF3C7;
+  --blue:#1E40AF;--blue-bg:#DBEAFE;
+  --purple:#5B21B6;--purple-bg:#EDE9FE;
+  --orange:#C2410C;--orange-bg:#FFEDD5;
+  --bg:#F0F4F8;--sur:#FFF;--sur2:#F8FAFC;--sur3:#F1F5F9;
+  --bdr:#E2E8F0;--bdr2:#CBD5E1;
+  --tx:#0F172A;--mt:#475569;--ht:#94A3B8;
+  --r:12px;--rs:8px;
+  /* Instalment group colors - subtle bg tints */
+  --grp-a:#EFF6FF;--grp-b:#F0FDF4;--grp-c:#FFF7ED;--grp-d:#FDF4FF;--grp-e:#FFFBEB;
+  --grp-ab:#93C5FD;--grp-bb:#6EE7B7;--grp-cb:#FCD34D;--grp-db:#C084FC;--grp-eb:#FCA5A5;
+}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;min-height:100vh}
+
+.hdr{background:linear-gradient(135deg,var(--navy),var(--navy2));position:sticky;top:0;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;gap:12px}
+.brand{display:flex;align-items:center;gap:13px}
+.b-ico{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,var(--gold),#F5C842);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 3px 10px rgba(212,160,23,.5)}
+.b-name{font-size:15px;font-weight:800;color:#fff}
+.b-sub{font-size:11px;color:rgba(255,255,255,.42);margin-top:2px}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.upd{font-size:11px;color:rgba(255,255,255,.38)}
+.btn-rf{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--rs);background:var(--gold);color:#100A00;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-rf:hover{background:#E8B420}.btn-rf:disabled{opacity:.65;cursor:wait}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.18);border-top-color:#100A00;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* CONNECT */
+.conn-screen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 70px);padding:24px}
+.conn-card{background:var(--sur);border-radius:16px;padding:32px 36px;max-width:560px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.1);border:1px solid var(--bdr)}
+.conn-card h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.conn-card p{font-size:13.5px;color:var(--mt);line-height:1.8;margin-bottom:20px}
+.conn-label{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:7px}
+.conn-inp{width:100%;padding:12px 14px;border:2px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:inherit;color:var(--tx);outline:none;transition:border-color .15s;direction:ltr;text-align:left}
+.conn-inp:focus{border-color:var(--gold)}
+.conn-btn{width:100%;margin-top:12px;padding:13px;border-radius:var(--rs);background:var(--navy);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;font-family:inherit;transition:background .15s}
+.conn-btn:hover{background:var(--navy2)}
+.conn-err{margin-top:10px;padding:10px 14px;background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--rs);color:var(--red);font-size:13px;display:none}
+.conn-hint{margin-top:14px;padding:12px 14px;background:var(--amber-bg);border:1px solid #FDE68A;border-radius:var(--rs);font-size:12.5px;color:var(--amber);line-height:1.7}
+.conn-hint strong{color:#7C3400}
+.conn-example{margin-top:8px;background:#1E293B;border-radius:var(--rs);padding:10px 14px;font-family:monospace;font-size:11px;color:#94D5A8;direction:ltr;text-align:left;word-break:break-all;line-height:1.6}
+
+/* LEGEND */
+.legend-bar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:8px 28px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:11.5px;color:var(--mt)}
+.legend-bar span{display:inline-flex;align-items:center;gap:6px}
+.leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.leg-stripe{width:20px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* TABS */
+.tabs{background:var(--sur);border-bottom:2px solid var(--bdr);padding:0 28px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:12px 20px;font-size:12.5px;font-weight:600;white-space:nowrap;color:var(--mt);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all .14s;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--tx)}.tab.on{color:var(--gold-d);border-bottom-color:var(--gold)}
+.tcnt{background:var(--gold-l);color:var(--gold-d);border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700}
+.tab.on .tcnt{background:var(--gold);color:#fff}
+.tab-all{font-weight:700}
+.tab-all.on{color:var(--navy);border-bottom-color:var(--navy)}
+.tab-all.on .tcnt{background:var(--navy);color:#fff}
+
+/* STATS */
+.stats{padding:18px 28px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.sc{background:var(--sur);border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--bdr);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%}
+.sc.g1::before{background:var(--gold)}.sc.g2::before{background:var(--green)}.sc.g3::before{background:var(--teal)}.sc.g4::before{background:var(--blue)}.sc.g5::before{background:var(--red)}.sc.g6::before{background:var(--orange)}.sc.g7::before{background:#F59E0B;box-shadow:0 0 8px 1px rgba(245,158,11,.5)}
+.sc-l{font-size:10.5px;color:var(--ht);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.sc-v{font-size:22px;font-weight:800;line-height:1}
+.sc.g1 .sc-v{color:var(--gold-d)}.sc.g2 .sc-v{color:var(--green)}.sc.g3 .sc-v{color:var(--teal)}.sc.g4 .sc-v{color:var(--blue)}.sc.g5 .sc-v{color:var(--red)}.sc.g6 .sc-v{color:var(--orange)}.sc.g7 .sc-v{color:#B45309}
+.sc-s{font-size:11px;color:var(--ht);margin-top:4px}
+
+/* CONTROLS */
+.ctrl{padding:14px 28px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.inp{padding:8px 12px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:12.5px;font-family:inherit;background:var(--sur);color:var(--tx);outline:none;transition:border-color .15s;height:36px}
+.inp:focus{border-color:var(--gold)}
+#sch{min-width:200px;flex:1}
+.btn-exp{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:36px;border-radius:var(--rs);background:var(--teal-bg);color:var(--teal);border:1px solid #A5D8E5;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-exp:hover{background:#C0EAF3}
+.btn-disc{display:inline-flex;align-items:center;gap:6px;padding:0 12px;height:36px;border-radius:var(--rs);background:var(--sur3);color:var(--mt);border:1px solid var(--bdr2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-disc:hover{background:var(--bdr)}
+/* toggle instalment highlight button */
+.btn-toggle{display:inline-flex;align-items:center;gap:6px;padding:0 12px;height:36px;border-radius:var(--rs);background:var(--blue-bg);color:var(--blue);border:1px solid #93C5FD;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-toggle.off{background:var(--sur3);color:var(--ht);border-color:var(--bdr2)}
+
+#err-a{padding:0 28px}
+.bnr{margin-top:10px;padding:12px 16px;border-radius:var(--rs);font-size:13px;display:flex;align-items:flex-start;gap:9px}
+.bnr.e{background:var(--red-bg);border:1px solid var(--red-b);color:var(--red)}
+
+/* TABLE */
+.tw{margin:12px 28px;background:var(--sur);border-radius:var(--r);box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--bdr);overflow:hidden}
+.ts{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{position:sticky;top:0;z-index:10}
+th{background:var(--navy);padding:11px 12px;text-align:right;color:rgba(255,255,255,.85);font-weight:600;font-size:11px;white-space:nowrap;border-left:1px solid rgba(255,255,255,.07)}
+th:first-child{border-left:none}
+td{padding:9px 12px;border-bottom:1px solid var(--bdr);vertical-align:middle;border-left:1px solid var(--bdr)}
+td:first-child{border-left:none}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FFFBEE!important}
+
+/* ── ROW STATES ── */
+/* Rejected / Cancelled */
+tr.row-rejected td{background:#FFF0F0!important;border-right:3px solid #EF4444}
+tr.row-rejected:hover td{background:#FFE4E4!important}
+tr.row-rejected .inv-c{color:var(--red);text-decoration:line-through}
+.rej-badge{display:inline-flex;align-items:center;gap:4px;background:#DC2626;color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;animation:pulse-red 1.8s ease-in-out infinite}
+@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.45)}50%{box-shadow:0 0 0 5px rgba(220,38,38,0)}}
+.rej-icon{font-size:14px;vertical-align:middle}
+
+/* Instalment groups - left colored border + subtle bg */
+tr.grp-0 td{border-right:3px solid #3B82F6;background:var(--grp-a)!important}
+tr.grp-1 td{border-right:3px solid #10B981;background:var(--grp-b)!important}
+tr.grp-2 td{border-right:3px solid #F59E0B;background:var(--grp-c)!important}
+tr.grp-3 td{border-right:3px solid #A855F7;background:var(--grp-d)!important}
+tr.grp-4 td{border-right:3px solid #EF4444;background:var(--grp-e)!important}
+tr.grp-0:hover td,tr.grp-1:hover td,tr.grp-2:hover td,tr.grp-3:hover td,tr.grp-4:hover td{filter:brightness(.97)}
+/* rejected overrides group */
+tr.row-rejected.grp-0 td,tr.row-rejected.grp-1 td,tr.row-rejected.grp-2 td{background:#FFF0F0!important;border-right:3px solid #EF4444}
+.grp-pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.grp-pill.g0{background:#DBEAFE;color:#1D4ED8}
+.grp-pill.g1{background:#D1FAE5;color:#065F46}
+.grp-pill.g2{background:#FEF3C7;color:#92400E}
+.grp-pill.g3{background:#F3E8FF;color:#6B21A8}
+.grp-pill.g4{background:#FEE2E2;color:#991B1B}
+
+tr:nth-child(even) td{background:var(--sur2)}
+tr.tot td{background:var(--gold-l)!important;font-weight:700;color:var(--gold-d)!important}
+.no-c{width:36px;text-align:center;font-weight:700;color:var(--ht);font-size:11px}
+.inv-c{font-weight:700;color:var(--blue);font-size:11.5px}
+.amt-c{font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;text-align:center;white-space:nowrap}
+.dt-c{color:var(--mt);font-size:11.5px;text-align:center;white-space:nowrap}
+.sw-c{font-family:monospace;font-size:10.5px;background:var(--teal-bg);color:var(--teal);padding:2px 7px;border-radius:4px;display:inline-block}
+.co-c{font-weight:600;font-size:11.5px}
+.bk-c{font-size:10.5px;color:var(--mt);line-height:1.5}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.bd{background:var(--teal-bg);color:var(--teal)}
+.ba{background:var(--amber-bg);color:var(--amber)}
+.bb{background:var(--blue-bg);color:var(--blue)}
+.bo{background:var(--purple-bg);color:var(--purple)}
+.sheet-tag{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--sur3);color:var(--ht);border:1px solid var(--bdr)}
+
+/* swift pending */
+.sw-pending{font-family:monospace;font-size:10.5px;background:var(--amber-bg);color:var(--amber);padding:2px 7px;border-radius:4px;display:inline-block}
+
+/* ── PENDING TRANSFER ALERT (قيد التدقيق / تم حجز المبلغ) ── */
+tr.row-pending td{background:#FFFBEA!important;border-right:3px solid #F59E0B}
+tr.row-pending:hover td{background:#FFF6D6!important}
+.pending-alert{display:inline-flex;align-items:center;gap:5px;background:#F59E0B;color:#fff;border-radius:20px;padding:3px 10px;font-size:10.5px;font-weight:700;box-shadow:0 0 0 0 rgba(245,158,11,.6);animation:glow-amber 1.6s ease-in-out infinite}
+@keyframes glow-amber{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.55)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
+
+/* ── SHIPMENT STATUS BADGES ── */
+.ship-badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.ship-shipped{background:var(--green-bg);color:var(--green)}
+.ship-arrived{background:#DCFCE7;color:#15803D;box-shadow:inset 0 0 0 1px #86EFAC}
+.ship-transit{background:var(--teal-bg);color:var(--teal)}
+.ship-notshipped{background:var(--sur3);color:var(--ht)}
+.ship-na{color:var(--ht);font-size:11px}
+
+/* row count banner */
+.row-count-banner{padding:6px 28px;font-size:11.5px;color:var(--mt);background:var(--sur2);border-bottom:1px solid var(--bdr)}
+
+.pag{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--bdr);background:var(--sur2);flex-wrap:wrap;gap:8px}
+.pi{font-size:12px;color:var(--ht)}
+.pbs{display:flex;gap:4px}
+.pb{min-width:30px;height:30px;padding:0 6px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr2);border-radius:6px;background:var(--sur);cursor:pointer;font-size:12px;font-family:inherit;color:var(--tx)}
+.pb:hover:not(:disabled){border-color:var(--gold);color:var(--gold-d)}
+.pb.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:700}
+.pb:disabled{opacity:.32;cursor:default}
+.stb{text-align:center;padding:56px 20px;color:var(--ht)}
+.stb .ic{font-size:44px;margin-bottom:14px}
+.stb .tx{font-size:14px}
+
+/* tooltip for group info */
+[data-tip]{position:relative;cursor:help}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;background:#1E293B;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;white-space:nowrap;z-index:99;pointer-events:none;font-family:'Cairo',sans-serif}
+
+/* ── DETAIL MODAL ── */
+.modal-ov{position:fixed;inset:0;background:rgba(15,28,46,.65);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .15s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--sur,#fff);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:780px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:slideUp .18s ease}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-hdr{background:linear-gradient(135deg,#0F1C2E,#1A2D45);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+.modal-po{font-family:monospace;font-size:17px;color:#D4A017;font-weight:800}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.modal-close:hover{background:rgba(255,255,255,.22)}
+.modal-body{overflow-y:auto;padding:20px 22px;flex:1;scrollbar-width:thin}
+.modal-section{margin-bottom:18px}
+.modal-sec-title{font-size:10.5px;font-weight:700;color:var(--ht,#94A3B8);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bdr,#E2E8F0);display:flex;align-items:center;gap:6px}
+.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.modal-field{background:var(--sur2,#F8FAFC);border:1px solid var(--bdr,#E2E8F0);border-radius:8px;padding:9px 12px}
+.modal-field.full{grid-column:1/-1}
+.modal-field.highlight{background:#FFFBEA;border-color:#FDE68A}
+.mf-label{font-size:10px;color:var(--ht,#94A3B8);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.mf-val{font-size:13px;color:var(--tx,#0F172A);font-weight:500;line-height:1.4;word-break:break-word}
+.mf-val.mono{font-family:monospace;font-size:12px}
+.mf-val.big{font-size:16px;font-weight:700;color:#166534}
+.mf-val.amber{color:#92400E}
+.mf-val.red{color:#991B1B}
+.mf-val.teal{color:#0E7490}
+.mf-val.blue{color:#1E40AF}
+.ship-status-lg{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700}
+.ssl-arrived{background:#DCFCE7;color:#166534}
+.ssl-atport{background:#E0F5F9;color:#0E7490}
+.ssl-transit{background:#DBEAFE;color:#1E40AF}
+.ssl-notshipped{background:#F3F4F6;color:#6B7280}
+.ssl-na{background:#F3F4F6;color:#9CA3AF}
+.pay-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pay-done{background:#DCFCE7;color:#166534}
+.pay-partial{background:#FEF3C7;color:#92400E}
+.pay-pending{background:#FEE2E2;color:#991B1B}
+.pay-other{background:#F3F4F6;color:#6B7280}
+.modal-footer{padding:12px 22px;border-top:1px solid var(--bdr,#E2E8F0);display:flex;justify-content:flex-end;flex-shrink:0;background:var(--sur2,#F8FAFC)}
+.btn-close-modal{padding:8px 22px;border-radius:8px;background:#0F1C2E;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-close-modal:hover{background:#1A2D45}
+
+
+/* ── ATTACHMENTS v2 — Drive Direct ── */
+.att-wrap{padding:4px 0}
+.att-drive-banner{display:flex;align-items:center;gap:10px;padding:11px 14px;background:linear-gradient(135deg,#E8F0FE,#F0F4FF);border:1px solid #C5D3F5;border-radius:10px;margin-bottom:12px}
+.att-drive-icon{font-size:22px;flex-shrink:0}
+.att-drive-info{flex:1;min-width:0}
+.att-drive-title{font-size:12.5px;font-weight:700;color:#1A55CC}
+.att-drive-sub{font-size:11px;color:#5F6B7C;margin-top:2px}
+.att-drive-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;background:#1A55CC;color:#fff;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .15s;border:none;cursor:pointer;font-family:inherit}
+.att-drive-btn:hover{background:#1344A8}
+.att-drive-btn.secondary{background:#fff;color:#1A55CC;border:1.5px solid #C5D3F5;margin-right:6px}
+.att-drive-btn.secondary:hover{background:#E8F0FE}
+.att-drive-btn.green{background:#166534}
+.att-drive-btn.green:hover{background:#14532D}
+
+.att-upload-box{border:2px dashed #CBD5E1;border-radius:10px;padding:16px;text-align:center;position:relative;transition:all .15s;background:#FAFAFA;margin-bottom:10px}
+.att-upload-box:hover,.att-upload-box.drag-over{border-color:#534AB7;background:#EEEDFE}
+.att-upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.att-upload-icon{font-size:24px;margin-bottom:4px}
+.att-upload-txt{font-size:12.5px;color:#475569;font-weight:500}
+.att-upload-hint{font-size:11px;color:#94A3B8;margin-top:3px}
+
+.att-cats{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.att-cat{padding:5px 12px;border-radius:20px;border:1.5px solid #CBD5E1;font-size:11.5px;cursor:pointer;transition:all .15s;background:#fff;color:#475569;font-family:inherit}
+.att-cat.sel{background:#534AB7;color:#fff;border-color:#534AB7}
+
+.att-progress-wrap{display:none;margin:8px 0}
+.att-progress-label{font-size:11.5px;color:#475569;margin-bottom:4px;display:flex;justify-content:space-between}
+.att-progress-bar-bg{height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden}
+.att-progress-bar-fill{height:100%;background:#534AB7;border-radius:3px;width:0%;transition:width .25s}
+.att-status-msg{font-size:12.5px;padding:8px 12px;border-radius:8px;margin-top:8px;display:none}
+.att-status-msg.ok{background:#DCFCE7;color:#166534}
+.att-status-msg.err{background:#FEE2E2;color:#991B1B}
+.att-status-msg.info{background:#EFF6FF;color:#1E40AF}
+
+.att-up-btn{width:100%;padding:9px;border-radius:8px;background:#534AB7;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s;margin-top:8px}
+.att-up-btn:hover{opacity:.88}
+.att-up-btn:disabled{opacity:.45;cursor:not-allowed}
+
+.att-divider{display:flex;align-items:center;gap:8px;margin:14px 0;color:#94A3B8;font-size:11px}
+.att-divider::before,.att-divider::after{content:'';flex:1;height:1px;background:#E2E8F0}
+
+.att-file-list{margin-top:4px}
+.att-file-list-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.att-file-list-title{font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em}
+.att-file-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:6px;background:#fff;transition:border-color .12s}
+.att-file-item:hover{border-color:#CBD5E1}
+.att-file-ico{font-size:20px;flex-shrink:0;width:26px;text-align:center}
+.att-file-info{flex:1;min-width:0}
+.att-file-name{font-size:12.5px;font-weight:600;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att-file-meta{font-size:10.5px;color:#94A3B8;margin-top:2px}
+.att-file-acts{display:flex;gap:5px;flex-shrink:0}
+.att-action-btn{padding:4px 9px;border-radius:6px;border:1px solid #E2E8F0;background:#fff;font-size:11.5px;cursor:pointer;color:#374151;text-decoration:none;display:inline-flex;align-items:center;gap:3px;font-family:inherit;transition:background .1s}
+.att-action-btn:hover{background:#F1F5F9;border-color:#CBD5E1}
+.att-empty-state{text-align:center;padding:20px 10px;color:#94A3B8}
+.att-empty-icon{font-size:32px;margin-bottom:8px}
+.att-empty-txt{font-size:12.5px}
+.att-spinner{display:inline-block;width:14px;height:14px;border:2px solid #E2E8F0;border-top-color:#534AB7;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:5px}
+
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="brand">
+      <div class="b-ico">💎</div>
+      <div>
+        <div class="b-name">Wahaj Almassa Trading Co.</div>
+        <div class="b-sub">نظام تتبع الحوالات البنكية · 2026</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <span class="upd" id="upd"></span>
+      <span class="upd" id="ship-upd" style="display:none;color:#5DCAA5;margin-right:10px;font-size:11px"></span>
+      <button class="btn-rf" id="rfbtn" onclick="loadData()" style="display:none">
+        <span id="rfic">↻</span> تحديث
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ADVANCED SETTINGS PANEL (admin override only — hidden by default, opened via "⚙️ إعدادات الربط") -->
+<div id="conn-screen" class="conn-screen" style="display:none">
+  <div class="conn-card">
+    <h2>⚙️ إعدادات مصدر البيانات (للمدير فقط)</h2>
+    <p>الرابط الافتراضي مُثبَّت داخل الملف ويعمل تلقائياً لدى جميع الموظفين دون أي إعداد. استخدم هذا الحقل فقط إذا أردت تجاوز الرابط الافتراضي مؤقتاً في هذا الجهاز تحديداً (مثلاً للاختبار).</p>
+    <div class="conn-label">رابط Web App URL</div>
+    <input type="url" id="api-inp" class="conn-inp"
+      placeholder="https://script.google.com/macros/s/AKfy.../exec"
+      onkeydown="if(event.key==='Enter')connectAPI()">
+    <div class="conn-err" id="conn-err"></div>
+    <button class="conn-btn" onclick="connectAPI()">🔗 استخدام هذا الرابط في هذا الجهاز</button>
+    <button class="btn-disc" style="width:100%;margin-top:8px;justify-content:center" onclick="disconnect()">↺ إعادة الجميع للرابط الافتراضي المعتمد</button>
+    <div class="conn-hint">
+      <strong>ملاحظة:</strong> أي تغيير هنا يُحفظ في متصفح هذا الجهاز فقط (localStorage) ولا يؤثر على باقي الموظفين. لتحديث الرابط الافتراضي للجميع بشكل دائم، يجب تعديل <code>DEFAULT_API_URL</code> داخل كود الملف نفسه وإعادة توزيعه.
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+  <div class="tabs" id="tabs"></div>
+
+  <!-- LEGEND -->
+  <div class="legend-bar" id="legend-bar">
+    <strong style="color:var(--tx);margin-left:4px">دليل الألوان:</strong>
+    <span><span class="leg-dot" style="background:#EF4444;box-shadow:0 0 0 2px #FECACA"></span>مرفوضة / ملغاة</span>
+    <span><span class="leg-dot" style="background:#F59E0B;box-shadow:0 0 0 2px #FDE68A"></span>🟡 قيد التدقيق / محجوزة</span>
+    <span><span class="leg-stripe" style="background:#DBEAFE;border-right:3px solid #3B82F6"></span>دفعات مجزأة (مجموعة ١)</span>
+    <span><span class="leg-stripe" style="background:#D1FAE5;border-right:3px solid #10B981"></span>دفعات مجزأة (مجموعة ٢)</span>
+    <span><span class="leg-stripe" style="background:#FEF3C7;border-right:3px solid #F59E0B"></span>دفعات مجزأة (مجموعة ٣)</span>
+    <span><span class="leg-stripe" style="background:#F3E8FF;border-right:3px solid #A855F7"></span>دفعات مجزأة (مجموعة ٤)</span>
+    <span>📦 وصلت بغداد &nbsp;|&nbsp; ⚓ وصلت ميناء وسيط &nbsp;|&nbsp; 🚢 في الطريق &nbsp;|&nbsp; ⏳ لم تُشحن بعد</span>
+  </div>
+
+  <div class="stats">
+    <div class="sc g1"><div class="sc-l">إجمالي الحوالات</div><div class="sc-v" id="s0">—</div></div>
+    <div class="sc g2"><div class="sc-l">إجمالي المبالغ $</div><div class="sc-v" id="s1">—</div><div class="sc-s" id="s1b"></div></div>
+    <div class="sc g3"><div class="sc-l">Direct</div><div class="sc-v" id="s2">—</div></div>
+    <div class="sc g4"><div class="sc-l">الشركات المستفيدة</div><div class="sc-v" id="s3">—</div></div>
+    <div class="sc g5"><div class="sc-l">مرفوضة / ملغاة</div><div class="sc-v" id="s5">—</div></div>
+    <div class="sc g6"><div class="sc-l">دفعات مجزأة</div><div class="sc-v" id="s6">—</div></div>
+    <div class="sc g7" style="position:relative"><div class="sc-l">🟡 قيد التدقيق / محجوزة</div><div class="sc-v" id="s7">—</div></div>
+  </div>
+
+  <div id="err-a"></div>
+  <div class="ctrl">
+    <input id="sch" class="inp" type="text" placeholder="🔍 بحث: فاتورة، شركة، بنك، حاوية، رقم طلب...">
+    <select id="fst" class="inp" onchange="filter()">
+      <option value="">كل حالات الشحن</option>
+      <option value="arrived">📦 وصلت بغداد (ATA)</option>
+      <option value="atport">⚓ وصلت ميناء وسيط</option>
+      <option value="transit">🚢 في الطريق</option>
+      <option value="notshipped">⏳ لم تُشحن بعد</option>
+    </select>
+    <select id="fs" class="inp" onchange="filter()">
+      <option value="">كل حالات الحوالة</option>
+      <option value="pending">🟡 قيد التدقيق / محجوزة</option>
+      <option value="rejected">🚫 مرفوضة / ملغاة</option>
+      <option value="group">📦 دفعات مجزأة فقط</option>
+    </select>
+    <select id="fp" class="inp" onchange="filter()">
+      <option value="">كل أنواع الدفع</option>
+      <option value="direct">Direct</option>
+      <option value="advance">Advance</option>
+      <option value="balance">Balance / Remaining</option>
+      <option value="other">أخرى</option>
+    </select>
+    <select id="fc" class="inp" onchange="filter()"><option value="">كل الشركات المستفيدة</option></select>
+    <select id="fb" class="inp" onchange="filter()"><option value="">كل البنوك</option></select>
+    <select id="ff" class="inp" onchange="filter()"><option value="">كل الشركات المُرسِلة</option></select>
+    <select id="srt" class="inp" onchange="filter()">
+      <option value="no">ترتيب رقم السجل</option>
+      <option value="dd">الأحدث تاريخاً</option>
+      <option value="da">الأقدم تاريخاً</option>
+      <option value="am">أعلى مبلغ</option>
+      <option value="al">أدنى مبلغ</option>
+      <option value="grp">تجميع حسب رقم الطلب</option>
+    </select>
+    <select id="psz" class="inp" onchange="changePageSize()">
+      <option value="50">50 / صفحة</option>
+      <option value="100">100 / صفحة</option>
+      <option value="250">250 / صفحة</option>
+      <option value="500">500 / صفحة</option>
+      <option value="1000">1000 / صفحة</option>
+      <option value="999999">عرض الكل</option>
+    </select>
+    <button id="toggleGrpBtn" class="btn-toggle" onclick="toggleGroupHighlight()">🎨 تمييز الدفعات المجزأة: تشغيل</button>
+    <button class="btn-disc" onclick="toggleSettings()">⚙️ إعدادات الربط</button>
+    <button class="btn-exp" onclick="expCSV()">📤 تصدير CSV</button>
+  </div>
+
+  <div class="tw">
+    <div class="ts">
+      <table>
+        <thead><tr>
+          <th style="width:36px;text-align:center">No.</th>
+          <th style="min-width:112px">Invoice No.</th>
+          <th style="min-width:90px">P.O (Odoo)</th>
+          <th style="min-width:110px;text-align:center">حالة الشحن</th>
+          <th style="min-width:78px;text-align:center">Date</th>
+          <th style="min-width:82px;text-align:center">Receive Swift</th>
+          <th style="min-width:112px;text-align:center">Amount Invoice</th>
+          <th style="min-width:120px">From Co.</th>
+          <th style="min-width:148px">To CO.</th>
+          <th style="min-width:185px">Beneficiary Bank</th>
+          <th style="min-width:128px">Bank (Iraq)</th>
+          <th style="min-width:85px">رقم الحاوية</th>
+          <th style="min-width:72px">المنفيست</th>
+          <th style="min-width:165px">Notes / الحالة</th>
+          <th style="min-width:90px">الشيت</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pag" id="pag" style="display:none">
+      <span class="pi" id="pi"></span>
+      <div class="pbs" id="pbs"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ EMBEDDED DATA ═══
+const EMBEDDED_DATA = {"ok": true, "sheets": [{"name": "الفالة", "csv": "No.,P.O ( odoo ),From Co.,Bank,To CO.,Beneficiary Bank,Invoice No.,Amount Invoice,Date,Notes,Receive Swift,bill,المنفيست,رقم المنفيست,,حوالات سنة 2026,,,,,,,,,,,,\r\n1,P00396,AL FALA CO,مصرف الأهلي,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,884/2026,165240,31/03/2026,DIRECT,07/04/2026,,,,,,,,,,,,,,,,,\r\n2,P00459,AL FALA CO,مصرف الأهلي,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,883/2026,82500,05/04/2026,DIRECT,14/05/2026,,,,,,,,,,,,,,,,,\r\n3,P00455,AL FALA CO,مصرف بغداد,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,880/2026,82500,04/05/2026,DIRECT,05/12/2026,,,,,,,,,,,,,,,,,\r\n4,P00460,AL FALA CO,مصرف بغداد,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,882/2026,82500,05/07/2026,DIRECT,13/05/2026,,,,,,,,,,,,,,,,,\r\n5,P00461,AL FALA CO,مصرف الأهلي,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,881/2026,82500,05/07/2026,DIRECT,20/05/2026,,,,,,,,,,,,,,,,,\r\n6,P00463,AL FALA CO,مصرف الأهلي,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,891/2026,82500,05/12/2026,DIRECT,20/05/2026,,,,,,,,,,,,,,,,,\r\n7,P00462,AL FALA CO,مصرف بغداد,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,890/2026,82500,05/12/2026,DIRECT,17/05/2026,,,,,,,,,,,,,,,,,\r\n8,P00452,AL FALA CO,مصرف الأهلي,Abdullah Hashim Industrial Gases & Equipment Co. Ltd,Saudi National Bank,#2026-07,384000,05/10/2026,DIRECT,20/05/2026,,,,,,,,,,,,,,,,,\r\n9,P00476,AL FALA CO,مصرف بغداد,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,893/2026,82500,25/05/2026,DIRECT,06/02/2026,,,,,,,,,,,,,,,,,\r\n10,P00477,AL FALA CO,مصرف الأهلي,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,892/2026,82500,25/05/2026,DIRECT,06/03/2026,,,,,,,,,,,,,,,,,\r\n11,P00467,AL FALA CO,مصرف بغداد,COOL SENSE AIRCONDITIONING & REFRIGERATION PARTS TRADING L.L.C,Emirates NBD Bank PJSC,PI0605-2,371101,25/05/2026,DIRECT,تم حجز المبلغ,,,,,,,,,,,,,,,,,\r\n12,P00472,AL FALA CO,مصرف بغداد,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,885/2026,82500,06/03/2026,DIRECT,قيد التدقيق,,,,,,,,,,,,,,,,,\r\n13,P00473,AL FALA CO,مصرف الأهلي,TABRIGAS EGYPT,ABU DHABI ISLAMIC BANK ADIB EGYPT,897/2026,82500,06/03/2026,DIRECT,قيد التدقيق,,,,,,,,,,,,,,,,,\r\n", "rows": 13}, {"name": "وهج الماسة", "csv": "No.,P.O ( odoo ),From Co.,Bank,To CO.,Beneficiary Bank,Invoice No.,Amount Invoice,Date,Notes,Receive Swift,Notes,المنفيست,رقم الحاوية,,حوالات سنة 2026,,,,,,,,,,,\r\n1,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,ZHEJIANG JUSHEN NEW MATERIAL,SHANGHAI PUDONG DEVELOPMENT BANK QUZHOU BRANCH,GA25-104,31800,01/05/2026,direct,13/01/2026,,,,,,,,,,,,,,,,\r\n2,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,ZHEJIANG JUSHEN NEW MATERIAL,SHANGHAI PUDONG DEVELOPMENT BANK QUZHOU BRANCH,GA25-110,56100,13/01/2026,direct,19/01/2026,,,,,,,,,,,,,,,,\r\n3,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,HANGZHOU JINJIU ELECTRIC APPLIANCE CO,\"BANK OF HANGZHOU CO., LTD\",JJ251227-SW06,28889,13/01/2026,direct,19/01/2026,30% remaning to pay,,,,,,,,,,,,,,,\r\n4,P00390,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Hangzhou juhe refrigeration equipment Co.,Ltd\",BANK OF CHINA HANG ZHOU YUHANG XIANLIN SUB-BRANCH,JH251220MA,11911,13/01/2026,direct,20/01/2026,\"15%ADVANCE ,BALANCE BEFORE SHIPPING\",,,,,,,,,,,,,,,\r\n5,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Huayi Compressor (Jingzhou) Co., Ltd\",BANK OF CHINA LTD HUBEI BRANCH,HYIQAK250929,69958,19/01/2026,direct,27/01/2026,,,,,,,,,,,,,,,,\r\n6,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"RENQIU CITY TIANYAO AIR CONDITIONING ACCESSORIES CO.,LTD\",BANK OF CHINA HEBEI BRANCH RENQIU SUB-BRACH,TY20251028,126653,20/01/2026,direct,29/01/2026,,,,,,,,,,,,,,,,\r\n7,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"GUANGZHOU REFACT INTERNATIONAL IMPORT AND EXPORT CO., LTD\",CHINA GUANGFA BANK,REMA2512-1,152492,21/01/2026,direct,27/01/2026,,,,,,,,,,,,,,,,\r\n8,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"GUANGZHOU REFACT INTERNATIONAL IMPORT AND EXPORT CO., LTD\",CHINA GUANGFA BANK,REMA251009,36025,22/01/2025,direct,29/01/2026,,,,,,,,,,,,,,,,\r\n9,P00386,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHUHAL LANDA COMPRESSOR CO.,LTD.\",\"The Agricultural Bank of China, Guangdong, Zhuhai Branch\",2025123001,58245,02/03/2026,direct,18/02/2026,,,,,,,,,,,,,,,,\r\n10,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",NGNB50482900,214567,22/01/2026,direct,02/05/2026,,,,,,,,,,,,,,,,\r\n11,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",NGBCB25048906,236841,25/01/2026,direct,02/03/2026,,,,,,,,,,,,,,,,\r\n12,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG ASBEILA REFRIGERATION TECHNOLOGY CO.,LTD\",\"NINGBO CIXI RURAL COMMERCIAL BANK CO., LTD\",ASBLI25059,79870,25/01/2026,direct,02/03/2026,,,,,,,,,,,,,,,,\r\n13,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-436,203118,27/01/2026,direct,02/06/2026,,,,,,,,,,,,,,,,\r\n14,,WAHAJ ALMASA CO,مصرف بغداد,HONGKONG HAILIANG METAL TRADING LIMITED,Shanghai Pudong Development Bank Offshore Banking Department,25HLHK02E033,682036,02/01/2026,direct,24/02/2026,,,,,,,,,,,,,,,,\r\n15,P00381,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"SHUSHI GROUP CO.,LTD\",BANK OF CHINA HUBEI BRANCH XIAOGAN SUB-BRANCH,SC01122504D,81902,29/01/2026,direct,02/06/2026,70% remaning to pay,,,,,,,,,,,,,,,\r\n16,P00390,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Hangzhou juhe refrigeration equipment Co.,Ltd\",BANK OF CHINA HANG ZHOU YUHANG XIANLIN SUB-BRANCH,JH251220MA,67498,02/03/2026,direct,18/02/2026,\"85%ADVANCE ,BALANCE BEFORE SHIPPING\",,,,,,,,,,,,,,,\r\n17,,WAHAJ ALMASA CO,مصرف العراقي للتجارة,\"YIWU HANWEI IMPORT AND EXPORT CO.,LTD\",\"ZHEJIANG TAILONG COMMERCIAL BANK CO.,LTD\",HW251030,72520,02/03/2026,direct,17/02/2026,,,,,,,,,,,,,,,,\r\n18,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"HANGZHOU JINJIU ELECTRIC APPL IANCE CO.,LTD\",\"BANK OF HANGZHOU CO., LTD\",JJ251227-SW06,42043,02/03/2026,direct,18/02/2026,70%T/T against Copy of B/L,,,,,,,,,,,,,,,\r\n19,,WAHAJ ALMASA CO,مصرف بغداد,\"GUANGZHOU HAIFEI AUTO PRODUCTS CO.,LTD\",HSBC Hong Kong,AL202501115E02,42675,02/04/2026,direct,الغيت من قبل K2 تم ارجاع المبلغ الى الحساب سوف تقدم من مصرف اخر,,,,,,,,,,,,,,,,\r\n20,,WAHAJ ALMASA CO,مصرف بغداد,\"GUANGZHOU HAIFEI AUTO PRODUCTS CO.,LTD\",HSBC Hong Kong,AL202501115E02,42675,02/04/2026,direct,23/02/2026,,,,,,,,,,,,,,,,\r\n21,,WAHAJ ALMASA CO,مصرف بغداد,\"GUANGZHOU HAIFEI AUTO PRODUCTS CO.,LTD\",HSBC Hong Kong,AL202501115E01,37452,02/05/2026,direct,25/02/2026,,,,,,,,,,,,,,,,\r\n22,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"JINHUA WEIKE INDUSTRIAL AND TRADING CO.,LTD\",\"ZHEJIANG CHOUZHOU COMMERCIAL BANK CO.,LTD\",ROQ368-REV2,169202,02/09/2026,direct,22/02/2026,,,,,,,,,,,,,,,,\r\n23,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"SHUSHI GROUP CO.,LTD\",BANK OF CHINA HUBEI BRANCH XIAOGAN SUB-BRANCH,CIF Cost,3653,02/11/2026,direct,الغيت وقدمت من جديد كما موضح اسفل,,,,,,,,,,,,,,,,\r\n24,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",DSNGBCB25050139,241338,02/12/2026,direct,رفضت بسبب اصدار تاريخ البوليصة قبل الفاتورة,,,,,,,,,,,,,,,,\r\n25,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",177GNJNJN0B597A,243299,16/02/2026,direct,22/02/2026,,,,,,,,,,,,,,,,\r\n26,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"GUANGZHOU REFACT INTERNATIONAL IMPORT AND EXPORT CO., LTD\",CHINA GUANGFA BANK,REMA2602-1,79517,16/02/2026,direct,22/02/2026,,,,,,,,,,,,,,,,\r\n27,,WAHAJ ALMASA CO,مصرف بغداد,HONGKONG HAILIANG METAL TRADING LIMITED,Shanghai Pudong Development Bank Offshore Banking Department,25HLHK02E034,546716,16/02/2026,direct,03/06/2026,,,,,,,,,,,,,,,,\r\n28,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"GUANGZHOU REFACT INTERNATIONAL IMPORT AND EXPORT CO., LTD\",CHINA GUANGFA BANK,REMA2601-1,105043,17/02/2026,direct,03/01/2026,,,,,,,,,,,,,,,,\r\n29,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Zhejiang Yonghe Refrigerant Co., Ltd\",INDUSTRIALANDCOMMERCIALBANKOFCHINA,MBA184/YH2527-1,140320,24/02/2026,direct,26/02/2026,,,,,,,,,,,,,,,,\r\n30,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Zhejiang Yonghe Refrigerant Co., Ltd\",INDUSTRIALANDCOMMERCIALBANKOFCHINA,MBA184/YH2527-2,140320,24/02/2026,direct,03/09/2026,,,,,,,,,,,,,,,,\r\n31,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Zhejiang Yonghe Refrigerant Co., Ltd\",INDUSTRIALANDCOMMERCIALBANKOFCHINA,MBA184/YH2602,140320,24/02/2026,direct,03/09/2026,,,,,,,,,,,,,,,,\r\n32,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-365,88348,03/05/2026,direct,قيد التدقيق,الغيت من قبل المصرف,,,,,,,,,,,,,,,\r\n33,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-389,128813,03/05/2026,direct,29/04/2026,,,,,,,,,,,,,,,,\r\n34,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Zhejiang Yonghe Refrigerant Co., Ltd\",INDUSTRIALANDCOMMERCIALBANKOFCHINA,MBA184/YH2527-3,140320,03/06/2026,direct,03/09/2026,,,,,,,,,,,,,,,,\r\n35,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",NGBCB25059235,456982,03/05/2026,direct,03/07/2026,,,,,,,,,,,,,,,,\r\n36,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-373,458016,03/08/2026,direct,29/04/2026,,,,,,,,,,,,,,,,\r\n37,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ANHUI MASCOTOP ELECTRONIC CO.,LTD\",CHINA CONSTRUCTION BANK,MTWA20251209,98250,03/10/2026,direct,26/03/2026,,,,,,,,,,,,,,,,\r\n38,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,RECO S.P.A.,INTESA SANPAOLO SPA Branch:,2600025/2026,425900,03/11/2026,direct,18/03/2026,,,,,,,,,,,,,,,,\r\n39,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"FUYANG YINGLONG ELECTRIC CO., LTD\",\"INDUSTRIAL AND COMMERCIAL BANK OF CHINA, ANHUI BRANCH\",PI-ME-251201001,91605,03/11/2026,direct,31/03/2026,75% متمم دفعة سابقة في عام -2025,,,,,,,,,,,,,,,\r\n40,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"WENAN JIANGHONG METAL PRODUCT CO., LTD\",\"ZHEJIANG CHOUZHOU COMMERCIAL BANK CO.,LTD\",2026JH0223,24313,03/09/2026,direct,31/03/2026,,,,,,,,,,,,,,,,\r\n41,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"JIANGSU FENGRUN ELECTRICAL EQUIPMENT GROUP CO.,LTD.\",\"AGRICULTURAL BANK OF CHINA, CHANGZHOU WUJIN SUB BRANCH\",FRFT-052718&53,274162,24/03/2026,direct,04/03/2026,,,,,,,,,,,,,,,,\r\n42,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",177GNJNJN0E308A,548128,29/03/2026,direct,04/08/2026,,,,,,,,,,,,,,,,\r\n43,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Zhejiang Yonghe Refrigerant Co., Ltd\",INDUSTRIALANDCOMMERCIALBANKOFCHINA,MBA184/YH2601,138514,29/03/2026,direct,04/08/2026,,,,,,,,,,,,,,,,\r\n44,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-412,139645,31/03/2026,direct,30/04/2026,,,,,,,,,,,,,,,,\r\n45,P00381,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"SHUSHI GROUP CO.,LTD\",BANK OF CHINA HUBEI BRANCH XIAOGAN SUB-BRANCH,CIF Cost,3653,02/11/2026,direct,15/04/2026,,,,,,,,,,,,,,,,\r\n46,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"WENAN JIANGHONG METAL PRODUCT CO., LTD\",\"ZHEJIANG CHOUZHOU COMMERCIAL BANK CO.,LTD\",2025JH1020,27915,04/05/2026,direct,16/04/2026,,,,,,,,,,,,,,,,\r\n47,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",Z232521272,258977,19/04/2026,direct,29/04/2026,,,,,,,,,,,,,,,,\r\n48,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",NGUS60042000,390051,19/04/2026,direct,24/04/2026,,,,,,,,,,,,,,,,\r\n49,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Huayi Compressor (Jingzhou) Co., Ltd\",BANK OF CHINA LTD HUBEI BRANCH,HYIQAK251206E,116704,19/04/2026,direct,24/04/2026,,,,,,,,,,,,,,,,\r\n50,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",NGUS60057400,261503,26/04/2026,direct,05/05/2026,,,,,,,,,,,,,,,,\r\n51,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,RECO S.P.A.,INTESA SANPAOLO SPA Branch:,2600025/2026,425900,30/04/2026,direct,05/06/2026,متمم دفعة ثانية,,,,,,,,,,,,,,,\r\n52,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"HANGZHOU JINJIU ELECTRIC APPLIANCE CO.,LTD\",\"BANK OF HANGZHOU CO., LTD\",JJ260123-SW07,1180,30/04/2026,direct,06/05/2026,,,,,,,,,,,,,,,,\r\n53,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-407+EXP2025-416+EXP2025-427,810055,05/04/2026,direct,05/10/2026,,,,,,,,,,,,,,,,\r\n54,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-407+EXP2025-416+EXP2025-428,521548,13/05/2026,direct,19/05/2026,,,,,,,,,,,,,,,,\r\n55,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,RECO S.P.A.,INTESA SANPAOLO SPA Branch:,2600053/2026,425900,13/05/2026,direct,20/05/2026,,,,,,,,,,,,,,,,\r\n56,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"GUANG DONG SUNPOWER REFRIGERATION EQUIPMENT CO.,LTD.\",China Guangfa Bank Co.，Ltd,PI-AL-20260504001,140275,24/05/2026,direct,تم حجز المبلغ,,,,,,,,,,,,,,,,\r\n57,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"WENAN JIANGHONG METAL PRODUCT CO., LTD\",\"ZHEJIANG CHOUZHOU COMMERCIAL BANK CO.,LTD\",2025JH1023,5300,24/05/2026,direct,10/06/2026,,,,,,,,,,,,,,,,\r\n58,,WAHAJ ALMASA CO,مصرف بغداد,COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L.L.C,Emirates NBD Bank PJSC,EXP2025-419+EXP2025-423,491417,24/05/2026,direct,03/06/2026,,,,,,,,,,,,,,,,\r\n59,,WAHAJ ALMASA CO,مصرف بغداد,\"ZHEJIANG DEYA REFRIGERATION TECHNOLOGY CO.,LTD\",\"ZHEJIANG RURAL COMMERCIAL UNITED BANK CO.,LTD\",DSNGBCB25050139,241338,24/05/2026,direct,تم حجز المبلغ,,,,,,,,,,,,,,,,\r\n60,,WAHAJ ALMASA CO,مصرف الأهلي العراقي,\"Huayi Compressor (Jingzhou) Co., Ltd\",BANK OF CHINA LTD HUBEI BRANCH,177GNWNWN3924BA,448083,06/01/2026,direct,06/10/2026,,,,,,,,,,,,,,,,\r\n", "rows": 60}, {"name": "زهور الامل", "csv": "No.,P.O ( odoo ),From Co.,Bank,To CO.,Beneficiary Bank,Invoice No.,Amount Invoice,Date,Notes,Receive Swift,bill,المنفيست,رقم الحاوية,,,,,,,,,,\r\n1,,ZUHOR AL-AMAL,مصرف بغداد,\"AL Sweer Trading FZE,\",Emirates NBD Bank PJSC,EXP2026-071,357170,19/04/2026,direct,23/04/2026,,,,,,,,,,,,,\r\n2,,ZUHOR AL-AMAL,مصرف بغداد,\"AL Sweer Trading FZE,\",Emirates NBD Bank PJSC,EXP2026-077,354890,05/04/2026,direct,05/05/2026,,,,,,,,,,,,,\r\n", "rows": 2}]};
+
+const SHIPMENT_DATA = [{"po": "P00327", "containerNo": "MSDU6593198 MSMU6679370", "containerCount": "2*40", "line": "MSC", "shipDate": "25/11/2025", "etaExpected": "05/01/2026", "etaUmQasr": "07/01/2026", "ataBaghdad": "24/02/2026", "bl": "WAHAJ ALMASA CO / 177GNJNJN0B597A", "notes": ""}, {"po": "P00368", "containerNo": "MSBU7549079", "containerCount": "1*40", "line": "MSC", "shipDate": "21/12/2025", "etaExpected": "20/01/2026", "etaUmQasr": "20/01/2026", "ataBaghdad": "28/02/2026", "bl": "WAHAJ ALMASA CO / MEDUKY473788", "notes": ""}, {"po": "P00365", "containerNo": "HPCU5138750 HPCU5138868", "containerCount": "2*40", "line": "PIL", "shipDate": "26/12/2025", "etaExpected": "09/02/2026", "etaUmQasr": "10/02/2026", "ataBaghdad": "16/03/2026", "bl": "WAHAJ ALMASA CO / ZSN500227400", "notes": ""}, {"po": "P00364", "containerNo": "PCIU1151275 PCIU0224103", "containerCount": "2*20", "line": "PIL", "shipDate": "09/01/2026", "etaExpected": "10/02/2026", "etaUmQasr": "10/02/2026", "ataBaghdad": "09/03/2026", "bl": "WAHAJ ALMASA CO / NGUS50506900", "notes": ""}, {"po": "P00366", "containerNo": "TRHU8497103", "containerCount": "1*40", "line": "MSC", "shipDate": "23/12/2025", "etaExpected": "16/02/2026", "etaUmQasr": "", "ataBaghdad": "23/03/2026", "bl": "WAHAJ ALMASA CO / MEDUWG264882", "notes": ""}, {"po": "P00360", "containerNo": "MSDU7006459 TGBU5567348 TRHU6442400 TXGU4250650", "containerCount": "4*40", "line": "MSC", "shipDate": "24/12/2025", "etaExpected": "16/02/2026", "etaUmQasr": "", "ataBaghdad": "07/03/2026", "bl": "WAHAJ ALMASA CO / 177NRLRLXVNN0101", "notes": ""}, {"po": "P00371", "containerNo": "BEAU5839622", "containerCount": "1*40", "line": "MSC", "shipDate": "03/01/2026", "etaExpected": "31/01/2026", "etaUmQasr": "08/02/2026", "ataBaghdad": "24/02/2026", "bl": "WAHAJ ALMASA CO", "notes": ""}, {"po": "P00372", "containerNo": "YMLU3589048", "containerCount": "1*20", "line": "yang ming", "shipDate": "10/01/2026", "etaExpected": "20/02/2026", "etaUmQasr": "", "ataBaghdad": "14/03/2026", "bl": "WAHAJ ALMASA CO / YMJAZ232520300", "notes": ""}, {"po": "P00374", "containerNo": "TIIU4218269", "containerCount": "1*40", "line": "cma cgm", "shipDate": "", "etaExpected": "07/02/2026", "etaUmQasr": "", "ataBaghdad": "09/03/2026", "bl": "WAHAJ ALMASA CO / SHZ7845970", "notes": ""}, {"po": "P00373", "containerNo": "MEDU8278460", "containerCount": "1*40", "line": "MSC", "shipDate": "12/01/2026", "etaExpected": "12/02/2026", "etaUmQasr": "", "ataBaghdad": "09/03/2026", "bl": "WAHAJALMASACO / MEDUWT155415", "notes": ""}, {"po": "P00377", "containerNo": "CAIU7899179 CIPU5108628 FFAU4016950 TEMU7407755", "containerCount": "4*40", "line": "RCL", "shipDate": "09/01/2026", "etaExpected": "18/02/2026", "etaUmQasr": "", "ataBaghdad": "08/03/2026", "bl": "WAHAJ ALMASA CO", "notes": ""}, {"po": "P00376", "containerNo": "TGHU9669329 TEMU7877553 MSMU6036645 MSDU7639014", "containerCount": "4*40", "line": "", "shipDate": "", "etaExpected": "10/02/2026", "etaUmQasr": "", "ataBaghdad": "14/03/2026", "bl": "WAHAJ ALMASA CO / 177GNJNJN0E308A", "notes": ""}, {"po": "P00375", "containerNo": "CMAU6218102", "containerCount": "1*40", "line": "cma cgm", "shipDate": "15/01/2026", "etaExpected": "07/02/2026", "etaUmQasr": "", "ataBaghdad": "14/03/2026", "bl": "WAHAJ ALMASA CO / SHZ7846086", "notes": ""}, {"po": "P00379", "containerNo": "MSMU7625505", "containerCount": "1*40", "line": "MSC", "shipDate": "18/01/2026", "etaExpected": "19/02/2026", "etaUmQasr": "", "ataBaghdad": "08/03/2026", "bl": "WAHAJ ALMASA CO / MEDURK186886", "notes": ""}, {"po": "P00394", "containerNo": "YMMU7135725 TEMU7013108", "containerCount": "2*40", "line": "Yang Ming", "shipDate": "02/02/2026", "etaExpected": "01/03/2026", "etaUmQasr": "25/02/2026", "ataBaghdad": "23/03/2026", "bl": "Wahai Almasa CO. / YMJAZ232521272", "notes": ""}, {"po": "P00370", "containerNo": "MSMU6810026 BEAU4253920 TEMU6630255", "containerCount": "3*40", "line": "MSC", "shipDate": "31/12/2025", "etaExpected": "12/03/2026", "etaUmQasr": "", "ataBaghdad": "29/03/2026", "bl": "WAHAJ ALMASA CO / 177ZYHYHSB23615", "notes": ""}, {"po": "P00383", "containerNo": "MSNU7697670 MSNU8806604", "containerCount": "2*40", "line": "MSC", "shipDate": "12/01/2026", "etaExpected": "11/03/2026", "etaUmQasr": "16/04/2026", "ataBaghdad": "20/04/2026", "bl": "WAHAJ ALMASA CO / 177NRLRLXVNN0307", "notes": ""}, {"po": "P00428", "containerNo": "CRXU9886541 SEGU6582530", "containerCount": "2*40", "line": "LMT", "shipDate": "12/04/2026", "etaExpected": "", "etaUmQasr": "18/04/2026", "ataBaghdad": "25/04/2026", "bl": "ZHOUR AL AMAL 2712604011", "notes": "يوجد تلف 3 قطع"}, {"po": "P00407", "containerNo": "CAAU5767838 TGBU7476210", "containerCount": "2*40", "line": "MSC", "shipDate": "30/01/2026", "etaExpected": "12/03/2026", "etaUmQasr": "", "ataBaghdad": "03/05/2026", "bl": "Wahai Almasa CO. / MEDUWI424617", "notes": ""}, {"po": "P00382", "containerNo": "MSDU7843012", "containerCount": "1*40", "line": "MSC", "shipDate": "29/01/2026", "etaExpected": "17/03/2026", "etaUmQasr": "14/04/2026", "ataBaghdad": "18/04/2026", "bl": "Wahai Almasa CO. / 177GNWNWN37005A", "notes": ""}, {"po": "P00429", "containerNo": "142", "containerCount": "سيارة", "line": "", "shipDate": "20/04/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "23/04/2026", "bl": "وهج الماسة", "notes": ""}, {"po": "P00443", "containerNo": "143", "containerCount": "سيارة", "line": "", "shipDate": "25/04/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "30/04/2026", "bl": "وهج الماسة", "notes": ""}, {"po": "447+446", "containerNo": "144", "containerCount": "سيارة", "line": "", "shipDate": "25/04/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "02/05/2026", "bl": "وهج الماسة", "notes": ""}, {"po": "P00449", "containerNo": "146", "containerCount": "سيارة", "line": "", "shipDate": "25/04/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "02/05/2026", "bl": "وهج الماسة", "notes": ""}, {"po": "P00448", "containerNo": "145", "containerCount": "", "line": "", "shipDate": "25/04/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "10/05/2026", "bl": "وهج الماسة", "notes": ""}, {"po": "P00392", "containerNo": "PCIU8501360", "containerCount": "1*40", "line": "PIL", "shipDate": "25/01/2026", "etaExpected": "15/03/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahai Almasa CO. / NGUS60042100", "notes": "وصلت الى العقبة"}, {"po": "P00393", "containerNo": "PCIU9125626 PIDU4575520 PCIU8539560", "containerCount": "3*40", "line": "pil", "shipDate": "", "etaExpected": "19/03/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahai Almasa CO. / NGUS60042000", "notes": "وصلت الى العقبة"}, {"po": "P00399", "containerNo": "PIDU4160400", "containerCount": "1*40", "line": "PIL", "shipDate": "10/02/2026", "etaExpected": "09/03/2026", "etaUmQasr": "", "ataBaghdad": "21/06/2026", "bl": "Wahai Almasa CO. / NGUS60057300", "notes": ""}, {"po": "P00305", "containerNo": "PIDU4383596", "containerCount": "1*40", "line": "PIL", "shipDate": "10/02/2026", "etaExpected": "09/03/2026", "etaUmQasr": "", "ataBaghdad": "20/06/2026", "bl": "Wahai Almasa CO. / NGUS60057100", "notes": ""}, {"po": "P00406", "containerNo": "HPCU5097619 PCIU8710890", "containerCount": "2*40", "line": "PIL", "shipDate": "05/02/2026", "etaExpected": "23/03/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahai Almasa CO. / NGUS60057400", "notes": "الهند / المفروض تطلع 7/6"}, {"po": "P00381", "containerNo": "UETU5158238 FFAU6120290", "containerCount": "2*40", "line": "OOCL", "shipDate": "27/01/2026", "etaExpected": "17/03/2026", "etaUmQasr": "", "ataBaghdad": "13/06/2026", "bl": "Wahai Almasa CO. / 2320200690", "notes": ""}, {"po": "P00345", "containerNo": "CAAU6383884", "containerCount": "1*40", "line": "RCL", "shipDate": "05/02/2026", "etaExpected": "15/03/2026", "etaUmQasr": "", "ataBaghdad": "14/06/2026", "bl": "Wahai Almasa CO. / NGUS60057400", "notes": ""}, {"po": "P00396", "containerNo": "TCLU4166641 UACU8439960 SEGU5961421", "containerCount": "3*40", "line": "HAPAG LLOYD", "shipDate": "13/02/2026", "etaExpected": "26/03/2026", "etaUmQasr": "اوراد", "ataBaghdad": "23/06/2026", "bl": "alfalah / HLCUALY260205231", "notes": "المفروض توصل"}, {"po": "P00391", "containerNo": "CAIU3577575", "containerCount": "1*20", "line": "RCL", "shipDate": "07/02/2026", "etaExpected": "11/03/2026", "etaUmQasr": "", "ataBaghdad": "14/06/2026", "bl": "WAHAJ ALMASA CO / SHACB26005139", "notes": ""}, {"po": "P00456", "containerNo": "CRSU9103120 CRSU9324440", "containerCount": "2*40", "line": "LMT", "shipDate": "11/05/2026", "etaExpected": "21/05/2026", "etaUmQasr": "", "ataBaghdad": "26/05/2026", "bl": "Zhour al amal 02712605013", "notes": ""}, {"po": "P00408", "containerNo": "FCIU7021469 MSCU5319770 MSMU6299847 MSMU7070665 MSMU8032000 MSNU7697010 TGBU7794470", "containerCount": "7*40HQ", "line": "msc", "shipDate": "16/05/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ 177GNWNWN3924BA", "notes": "في الشارقة"}, {"po": "P00386", "containerNo": "MSBU3872416", "containerCount": "20GP*1", "line": "msc", "shipDate": "28/05/2026", "etaExpected": "29/06/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahaj Almasa Co", "notes": ""}, {"po": "P00413", "containerNo": "MSDU6225827 MSDU5899840 MSBU7069697 MSDU7945821 FCIU9736688 FANU3276339 CAAU5246300 FANU3661295 HAMU4506706 GCXU5932685 HAMU2243555 HLBU1715364", "containerCount": "12*40+", "line": "msc", "shipDate": "18/05/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - متعدد", "notes": ""}, {"po": "P00405", "containerNo": "BEAU6330394", "containerCount": "1*40", "line": "CU LINES", "shipDate": "28/04/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "sweer", "notes": ""}, {"po": "P00404", "containerNo": "MSMU5591350 TCNU1355314", "containerCount": "2*40", "line": "msc", "shipDate": "19/05/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ ALMASSA - MEDUXH299869", "notes": "في خور فكان"}, {"po": "P00380", "containerNo": "BMOU5543872 FFAU3760057 MSDU8979282 MSMU6127560", "containerCount": "4*40", "line": "msc", "shipDate": "22/05/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahaj / 177NRLRLXVNN2206", "notes": "في خور فكان"}, {"po": "P00481", "containerNo": "MEDU4734920 MSBU6949300 MSBU8772913 MSCU5289090 MSMU5142302 MSMU7274587 MSNU9194334 TCNU1588173", "containerCount": "8*40", "line": "msc", "shipDate": "15/05/2026", "etaExpected": "26/06/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahaj", "notes": ""}, {"po": "P00412", "containerNo": "CAIU7617953 CAIU7751556 FSCU8109234", "containerCount": "3*40", "line": "msc", "shipDate": "22/05/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "Wahaj / 177NRLRLXVNN2205", "notes": ""}, {"po": "P00390", "containerNo": "BEAU5665650", "containerCount": "1*40", "line": "msc", "shipDate": "15/05/2026", "etaExpected": "26/06/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - 177GGJGJN9C020A", "notes": ""}, {"po": "P00482", "containerNo": "MSBU5391488 MSNU8847687 MSMU6460524 MSNU8799110 UETU6231708", "containerCount": "5*40", "line": "msc", "shipDate": "03/06/2026", "etaExpected": "16/07/2026", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ / 177GNJNJN0K104A", "notes": ""}, {"po": "P00403", "containerNo": "CAAU4830216 CAAU4832060 MSBU7937900", "containerCount": "3*40", "line": "", "shipDate": "", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ / 177ZJTJTJ058095X", "notes": ""}, {"po": "P00469", "containerNo": "ESDU4033093 ESDU4283467 ESDU4307487", "containerCount": "3*40", "line": "", "shipDate": "08/05/2026", "etaExpected": "", "etaUmQasr": "21/06/2026", "ataBaghdad": "27/06/2026", "bl": "Wahaj", "notes": "وصلت بغداد"}, {"po": "P00467", "containerNo": "CMAU2721377 CAIU3530243 CMAU1972450 SEGU1174829 APZU3797387 CMAU2187045 TEMU2390963", "containerCount": "7*20GP", "line": "", "shipDate": "", "etaExpected": "", "etaUmQasr": "AQABA", "ataBaghdad": "", "bl": "falah", "notes": "في العقبة"}, {"po": "P00452", "containerNo": "بدون اوراق", "containerCount": "", "line": "", "shipDate": "", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "الفالة", "notes": "لا تنطلق حتى ندفع الحوالة"}, {"po": "P00470", "containerNo": "غاز هشام", "containerCount": "", "line": "", "shipDate": "", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "02/06/2026", "bl": "WAHAJ", "notes": ""}, {"po": "P00425", "containerNo": "TLLU803459 LMCU916551", "containerCount": "2*40", "line": "Ignazio Messina", "shipDate": "26/05/2026", "etaExpected": "09/06/2026", "etaUmQasr": "العقبة", "ataBaghdad": "", "bl": "WAHAJ", "notes": "حاليا في العقبة"}, {"po": "P00479", "containerNo": "TGBU5593352 MSNU8042208", "containerCount": "2*40", "line": "msc", "shipDate": "04/06/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - MEDUXH925307", "notes": ""}, {"po": "P00441", "containerNo": "FFAU1666041 TRHU8653171", "containerCount": "2*40", "line": "msc", "shipDate": "04/06/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - MEDUXZ476243", "notes": ""}, {"po": "P00438", "containerNo": "MSMU5631643 MSMU4257797", "containerCount": "2*40", "line": "msc", "shipDate": "04/06/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - MEDUXU593463", "notes": ""}, {"po": "P00439", "containerNo": "FFAU5524913", "containerCount": "1*40", "line": "msc", "shipDate": "04/06/2026", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - MEDUXU040788", "notes": ""}, {"po": "P00385", "containerNo": "UETU7033055", "containerCount": "1*40", "line": "", "shipDate": "", "etaExpected": "", "etaUmQasr": "", "ataBaghdad": "", "bl": "WAHAJ - 177ZYHYHSB25421", "notes": ""}];
+
+// ── SHIPMENT DATA LOOKUP (by PO) ──
+let SHIPMENT_MAP={};
+
+// ══════════════════════════════════════════════════════════════════
+// ── بيانات الشحن الحية — تُجلب من Google Sheets عند كل تحديث ──
+// ══════════════════════════════════════════════════════════════════
+
+// الأعمدة المطلوبة من ملف الشحنات (بالترتيب في الشيت)
+// أعمدة الشيت: ROQ/BL, حاوية, عدد, كمية, خط, تفاصيل, شحن, وصول, ETA, ATA, BL, شاحن, اودو, ...
+const SHIP_COL = {
+  containerNo:  0,   // أ — رقم الحاوية / BL
+  containerCnt: 2,   // ج — عدد الحاويات
+  line:         4,   // هـ — خط الملاحة
+  shipDate:     6,   // ز — تاريخ الشحن
+  etaExpected:  7,   // ح — تاريخ الوصول المفترض
+  etaUmQasr:   8,   // ط — أم قصر ETA
+  ataBaghdad:  9,   // ي — بغداد ATA
+  bl:          10,   // ك — BL رقم البوليصة
+  shipper:     11,   // ل — الشاحن
+  po:          12,   // م — اودو (رقم الطلب)
+  notes:       13    // الملاحظة (في شيت 05 و06 تختلف مواضع الأعمدة قليلاً)
+};
+
+// قراءة قيمة خلية من سطر gviz (يتعامل مع الأنواع المختلفة: string, number, date)
+function gvizCell(col) {
+  if (!col || col.v == null) return '';
+  if (typeof col.v === 'string') return col.v.trim();
+  if (typeof col.v === 'number') return String(col.v);
+  return String(col.v).trim();
+}
+
+// تحويل كائن تاريخ gviz  (Date(2026,0,5) → "05/01/2026")
+function gvizDate(col) {
+  if (!col || col.v == null) return '';
+  if (typeof col.v === 'string') {
+    // إذا كان نصاً فعلياً (ليس تاريخاً)
+    if (/Date\(/.test(col.v)) {
+      const m = col.v.match(/Date\((\d+),(\d+),(\d+)/);
+      if (m) {
+        const y = +m[1], mo = +m[2]+1, d = +m[3];
+        return String(d).padStart(2,'0')+'/'+String(mo).padStart(2,'0')+'/'+y;
+      }
+    }
+    return col.v.trim();
+  }
+  if (col.f) return col.f.trim();   // نص منسق
+  return '';
+}
+
+// تحليل استجابة gviz JSON لجلب الصفوف كمصفوفة من الخلايا
+function parseGvizJson(text) {
+  // إزالة wrapper: google.visualization.Query.setResponse({...})
+  const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
+  try {
+    const resp = JSON.parse(clean);
+    const rows = resp?.table?.rows || [];
+    const cols = resp?.table?.cols || [];
+    return { rows, cols };
+  } catch(e) {
+    return { rows: [], cols: [] };
+  }
+}
+
+// بناء سجل شحنة واحد من صف gviz
+function rowToShipRecord(cells, sheetName) {
+  const g  = (i) => gvizCell(cells[i]);
+  const gd = (i) => gvizDate(cells[i]);
+  const po = g(SHIP_COL.po).replace(/^\s+|\s+$/g,'');
+  if (!po) return null;
+
+  // في شيتات 05 و06 يوجد عمود ملاحظة إضافي في الموضع 12 يُزيح اودو إلى 13
+  let poVal = po;
+  let notes = g(SHIP_COL.notes);
+  // إذا كان po يبدو ملاحظة وليس رقم طلب، نحاول الموضع 13
+  if (!/^P\d|^\d{3}|^447/.test(po) && cells.length > 13) {
+    const alt = gvizCell(cells[13]);
+    if (/^P\d|^\d{3}|^447/.test(alt)) {
+      poVal  = alt;
+      notes  = po + (notes ? ' / '+notes : '');
+    } else {
+      return null; // لا يوجد رقم طلب حقيقي
+    }
+  }
+  if (!poVal || poVal.length < 2) return null;
+
+  return {
+    po:             poVal,
+    sheet:          sheetName,
+    shipDate:       gd(SHIP_COL.shipDate),
+    etaExpected:    gd(SHIP_COL.etaExpected),
+    etaUmQasr:     g(SHIP_COL.etaUmQasr),
+    ataBaghdad:    gd(SHIP_COL.ataBaghdad),
+    bl:             g(SHIP_COL.bl),
+    containerNo:    g(SHIP_COL.containerNo),
+    containerCount: g(SHIP_COL.containerCnt),
+    line:           g(SHIP_COL.line),
+    notes:          notes
+  };
+}
+
+
+// ════════════════════════════════════════════════════════
+//  جلب بيانات الشحن الحية — عبر Apps Script ?action=shipment
+//  يقرأ ملف shipment 2026 مباشرة من Drive بدون CORS issues
+// ════════════════════════════════════════════════════════
+
+// ═══ جلب بيانات الشحن الحية عبر Apps Script ═══
+
+// ═══ جلب بيانات الشحن — رابط Apps Script الخاص بملف الشحنات ═══
+const SHIP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyPv6oTep3gSEJcz1b42J4_F5eF_41qMtp-19LsoKnO9sk1oB3kVq0O-fL3oYAJ8-ZxQ/exec';
+
+async function loadShipmentData() {
+  try {
+    const res  = await fetch(SHIP_SCRIPT_URL + '?action=shipment');
+    const data = await res.json();
+    if (!data.ok || !data.records || !data.records.length) {
+      console.warn('Shipment:', data.error || 'empty');
+      return 0;
+    }
+    data.records.forEach(s => {
+      const key = (s.po || '').trim().toUpperCase();
+      if (!key) return;
+      const ex = SHIPMENT_MAP[key];
+      if (ex) {
+        // تحديث الحقول الحيوية فقط بالبيانات الجديدة (الأحدث تطغى على القديمة)
+        if (s.ataBaghdad)   ex.ataBaghdad   = s.ataBaghdad;
+        if (s.etaUmQasr)    ex.etaUmQasr    = s.etaUmQasr;
+        if (s.etaExpected)  ex.etaExpected  = s.etaExpected;
+        if (s.containerNo)  ex.containerNo  = s.containerNo;
+        if (s.containerCount) ex.containerCount = s.containerCount;
+        if (s.bl)           ex.bl           = s.bl;
+        if (s.shipDate)     ex.shipDate     = s.shipDate;
+        if (s.notes)        ex.notes        = s.notes;
+        if (s.line)         ex.line         = s.line;
+      } else {
+        SHIPMENT_MAP[key] = s;
+      }
+    });
+    const el = document.getElementById('ship-upd');
+    if (el) {
+      el.textContent = '⚓ ' + data.records.length + ' شحنة — '
+        + new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
+      el.style.display = 'inline';
+    }
+    renderPage(); // إعادة الرسم لإظهار الحاويات والمواعيد المحدّثة
+    return data.records.length;
+  } catch(e) {
+    console.warn('loadShipmentData failed:', e.message);
+    return 0;
+  }
+}
+
+
+
+
+
+// ════════════════════════════════════════════════════════
+//  جلب بيانات الشحن — مباشرة من Google Sheet العام
+//  الملف: shipment 2026 (ID: 1spnY87iApcav3KKmo0QTaNBkFzvvWSQn0u3lgddeCGU)
+//  الطريقة: gviz/tq بدون API key — يعمل مع CORS كاملاً
+// ════════════════════════════════════════════════════════
+const SHIP_GID   = '1spnY87iApcav3KKmo0QTaNBkFzvvWSQn0u3lgddeCGU';
+const SHIP_TABS  = ['01+02+03-2026', '04-2026', '05-2026', '06-2026'];
+
+// تحليل تاريخ من أي صيغة
+function parseShipDate(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  if (!s || s === '0') return '';
+  // صيغة dd/MM/yyyy
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
+  // صيغة M/d/yyyy (أمريكية)
+  const ma = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (ma) return ma[2].padStart(2,'0')+'/'+ma[1].padStart(2,'0')+'/'+ma[3];
+  // صيغة d-M-yyyy أو d-MMM-yy
+  const mb = s.match(/^(\d{1,2})[\-\.](\d{1,2})[\-\.](\d{2,4})$/);
+  if (mb) {
+    const y = mb[3].length===2 ? '20'+mb[3] : mb[3];
+    return mb[1].padStart(2,'0')+'/'+mb[2].padStart(2,'0')+'/'+y;
+  }
+  // نص مثل "May 11 2026" من gviz
+  const mc = s.match(/^([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})$/);
+  if (mc) {
+    const MO={'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
+               'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'};
+    return mc[2].padStart(2,'0')+'/'+(MO[mc[1]]||'01')+'/'+mc[3];
+  }
+  return s; // إعادة كنص كما هو (ملاحظات عربية إلخ)
+}
+
+// استخراج رقم P.O نظيف
+function normPO(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  const m = s.match(/P0*(\d{3,})/i);
+  if (m) return 'P' + String(+m[1]).padStart(5,'0');
+  if (/^\d{3,}\+\d{3,}$/.test(s)) return s; // مثل 447+446
+  const m2 = s.match(/^PO?(\d{3,})$/i);
+  if (m2) return 'P' + String(+m2[1]).padStart(5,'0');
+  return '';
+}
+
+// جلب شيت واحد عبر gviz
+async function fetchShipTab(tabName) {
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHIP_GID
+    + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(tabName);
+  const res  = await fetch(url);
+  const text = await res.text();
+  const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
+  const resp  = JSON.parse(clean);
+  const rows  = resp?.table?.rows || [];
+  const cols  = resp?.table?.cols || [];
+
+  // خريطة الأعمدة من العناوين
+  const hdr = cols.map(c => (c.label||'').toLowerCase());
+  const ci = {
+    po:       hdr.findIndex(h => h.includes('odoo') || h.includes('p.o')),
+    shipDate: hdr.findIndex(h => h.includes('تاريخ الشحن')),
+    etaExp:   hdr.findIndex(h => h.includes('الوصول المفترض')),
+    etaUmQ:   hdr.findIndex(h => h.includes('أم قصر') || h.includes('um qasr')),
+    ataBgd:   hdr.findIndex(h => h.includes('بغداد') || h.includes('baghdad') || h.includes('ata')),
+    bl:       hdr.findIndex(h => h.includes('bl') || h.includes('بوليصة')),
+    cntNo:    hdr.findIndex(h => h.includes('containers no') || h.includes('رقم الحاوية')),
+    cntCnt:   hdr.findIndex(h => h.includes('counts') || h.includes('عدد الحاويات')),
+    line:     hdr.findIndex(h => h.includes('line') || h.includes('أسم الخط')),
+    note:     hdr.findIndex(h => h.includes('ملاحظة') && !h.includes('acc')),
+  };
+  if (ci.po < 0) ci.po = 0; // fallback
+
+  const records = [];
+  for (const row of rows) {
+    const c = row.c || [];
+    const gv = i => i >= 0 && i < c.length ? (c[i]?.v ?? c[i]?.f ?? '') : '';
+    const gs = i => String(gv(i)||'').trim();
+
+    const po = normPO(gs(ci.po));
+    if (!po) continue;
+
+    // تاريخ ATA — قد يكون تاريخاً حقيقياً أو نص ملاحظة
+    const ataRaw = gs(ci.ataBgd);
+    let ataBaghdad = '', extraNote = '';
+    if (/\d{2}\/\d{2}\/\d{4}/.test(parseShipDate(ataRaw))) {
+      ataBaghdad = parseShipDate(ataRaw);
+    } else if (ataRaw) {
+      extraNote = ataRaw;
+    }
+
+    records.push({
+      po,
+      sheet:          tabName,
+      shipDate:       parseShipDate(gs(ci.shipDate)),
+      etaExpected:    parseShipDate(gs(ci.etaExp)),
+      etaUmQasr:     gs(ci.etaUmQ),
+      ataBaghdad,
+      bl:             gs(ci.bl),
+      containerNo:    gs(ci.cntNo),
+      containerCount: gs(ci.cntCnt),
+      line:           gs(ci.line),
+      notes:          [gs(ci.note), extraNote].filter(Boolean).join(' | ')
+    });
+  }
+  return records;
+}
+
+// جلب كل الشيتات بالتوازي
+async function loadShipmentData() {
+  try {
+    const results = await Promise.all(SHIP_TABS.map(t => fetchShipTab(t).catch(() => [])));
+    const fresh   = results.flat();
+    if (fresh.length === 0) return 0;
+
+    fresh.forEach(s => {
+      const key = (s.po||'').trim().toUpperCase();
+      if (key) SHIPMENT_MAP[key] = s;
+    });
+
+    const upd = document.getElementById('ship-upd');
+    if (upd) {
+      upd.textContent = '⚓ ' + fresh.length + ' شحنة — '
+        + new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
+      upd.style.display = 'inline';
+    }
+    return fresh.length;
+  } catch(e) {
+    console.warn('loadShipmentData failed:', e.message);
+    return 0;
+  }
+}
+
+
+
+// ─── Container helpers — تجلب من SHIPMENT_MAP بدلاً من row.container ───
+function getContainerDisplay(po) {
+  if (!po || po === '—') return '—';
+  const s = SHIPMENT_MAP[(po||'').trim().toUpperCase()];
+  if (!s || !s.containerNo) return '—';
+  const t = s.containerNo.trim();
+  return t || '—';
+}
+function getCountDisplay(po) {
+  const s = SHIPMENT_MAP[(po||'').trim().toUpperCase()];
+  return (s && s.containerCount) ? s.containerCount : '';
+}
+
+function buildShipmentMap(){
+  SHIPMENT_MAP={};
+  SHIPMENT_DATA.forEach(s=>{
+    const key=String(s.po).trim().toUpperCase();
+    if(!key)return;
+    // keep the most complete record if duplicate PO (last one wins, or merge ATA priority)
+    if(!SHIPMENT_MAP[key]) SHIPMENT_MAP[key]=s;
+    else {
+      // prefer record that has ataBaghdad filled
+      if(!SHIPMENT_MAP[key].ataBaghdad && s.ataBaghdad) SHIPMENT_MAP[key]=s;
+    }
+  });
+}
+function getShipmentInfo(po){
+  if(!po) return null;
+  return SHIPMENT_MAP[String(po).trim().toUpperCase()] || null;
+}
+// Determine shipment status code: shipped / arrived / transit / atport / notshipped / na
+function shipmentStatus(po){
+  const s=getShipmentInfo(po);
+  if(!s) return 'na';
+  const notes=(s.notes||'').toLowerCase();
+  // إذا وصلت بغداد فعلياً (ATA معبأ بتاريخ صريح)
+  if(s.ataBaghdad && /\d/.test(s.ataBaghdad)) return 'arrived';
+  // إذا الملاحظات تذكر وصول ميناء وسيط (العقبة / خور فكان / الشارقة) دون وصول بغداد
+  if(/وصلت|وصل/.test(notes) && /(عقبة|خور فكان|الشارقة|جبل علي)/.test(notes)) return 'atport';
+  // إذا لا يوجد تاريخ شحن إطلاقاً ولا أي بيانات حركة = لم تُشحن
+  if(!s.shipDate && !s.bl && !s.containerNo) return 'notshipped';
+  // إذا يوجد تاريخ شحن (أو بوليصة/حاويات) ولم تصل بعد = في الطريق
+  if(s.shipDate||s.bl||s.containerNo) return 'transit';
+  return 'notshipped';
+}
+function shipmentBadge(po){
+  const st=shipmentStatus(po);
+  const s=getShipmentInfo(po);
+  const map={
+    arrived:{cls:'ship-arrived',icon:'📦',label:'وصلت بغداد'},
+    atport:{cls:'ship-transit',icon:'⚓',label:'وصلت ميناء وسيط'},
+    transit:{cls:'ship-transit',icon:'🚢',label:'في الطريق'},
+    shipped:{cls:'ship-shipped',icon:'✅',label:'تم الشحن'},
+    notshipped:{cls:'ship-notshipped',icon:'⏳',label:'لم تُشحن'},
+    na:{cls:'ship-na',icon:'',label:'—'}
+  };
+  const m=map[st];
+  if(st==='na') return `<span class="ship-na">—</span>`;
+  const tipParts=[
+    s&&s.bl?`BL: ${s.bl}`:'',
+    s&&s.shipDate?`شحن: ${s.shipDate}`:'',
+    s&&s.ataBaghdad?`ATA: ${s.ataBaghdad}`:'',
+    s&&s.notes?`ملاحظة: ${s.notes}`:''
+  ].filter(Boolean).join(' | ');
+  return `<span class="ship-badge ${m.cls}" data-tip="${tipParts.replace(/"/g,'&quot;')}">${m.icon} ${m.label}</span>`;
+}
+
+const KEY='wahaj_exec_url';
+// ── رابط Google Apps Script الثابت — يُستخدم تلقائياً لدى جميع المستخدمين بدون أي إعداد يدوي ──
+const DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbwc7Mh2IWjk4r5-dqNYWtHVDnVcAbrra6ybyMtShsGtB2KjCCxdDC1hiWjeyoVB1jvDdQ/exec';
+let PAGE_SZ=50;
+let sheets=[], curIdx=-1, curRows=[], fltRows=[], page=0, groupHighlight=true;
+
+// ── REJECTION KEYWORDS ──
+const REJ_KW=['الغيت','الغي','رفض','رفضت','ملغا','cancelled','canceled','rejected','reject','returned','ارجاع'];
+function isRejected(r){
+  const t=(r.notes+' '+r.swift+' '+r.n2raw).toLowerCase();
+  return REJ_KW.some(k=>t.includes(k));
+}
+// ── NORMALISE company name for deduplication in dropdown ──
+function normCo(name){
+  if(!name) return '';
+  return name.trim()
+    .toUpperCase()
+    .replace(/\s+/g,' ')
+    .replace(/[,\.]+$/,'')
+    .replace(/AIRCONDITION\b/,'AIRCONDITIONING')
+    .replace(/REFRIGERATION PARTS TRADING\b/,'REFRIGERATION SPARE PARTS TRADING')
+    .replace(/SPARE PARTS TRADING L\.?L\.?C\.?$/,'SPARE PARTS TRADING LLC')
+    .replace(/REFRIGERATION SPARE PARTS TRADING LLC$/,'AIRCONDITIONING & REFRIGERATION SPARE PARTS')
+    .replace(/COOL SENSE AIRCONDITIONING & REFRIGERATION SPARE PARTS$/, 'COOL SENSE AIRCONDITIONING & REFRIGERATION SPARE PARTS')
+    .replace(/COOL SENSE AIRCONDITION & REFRIGERATION SPARE PARTS TRADING L\.L\.C/,'COOL SENSE AIRCONDITIONING & REFRIGERATION SPARE PARTS')
+    .replace(/COOL SENSE AIRCONDITIONING & REFRIGERATION PARTS TRADING L\.L\.C/,'COOL SENSE AIRCONDITIONING & REFRIGERATION SPARE PARTS')
+    .replace(/HONGKONG HAILIANG/,'HONG KONG HAILIANG')
+    .replace(/HKONG HAILIANG/,'HONG KONG HAILIANG')
+    .replace(/HANGZHOU JINJIU ELECTRIC APPL IANCE/,'HANGZHOU JINJIU ELECTRIC APPLIANCE');
+}
+
+// ── INIT ──
+// الأولوية دائماً: الرابط الثابت المُعتمد (DEFAULT_API_URL) — لضمان نفس البيانات الحقيقية لدى الجميع.
+// رابط محفوظ يدوياً في هذا الجهاز (إن وُجد من إعداد سابق) يُستخدم فقط كاستثناء صريح من المدير عبر "تغيير الرابط".
+window.onload=()=>{
+  const manualOverride=localStorage.getItem(KEY);
+  const activeUrl=manualOverride||DEFAULT_API_URL;
+  document.getElementById('api-inp').value=activeUrl;
+  showDashboard();
+  loadData(activeUrl);
+};
+
+// ── CONNECT ──
+function connectAPI(){
+  const raw=document.getElementById('api-inp').value.trim();
+  if(raw.includes('googleusercontent.com/macros/echo')){showConnErr('هذا رابط المعاينة وليس رابط التشغيل.');return;}
+  if(!raw.startsWith('https://script.google.com')){showConnErr('الرابط يجب أن يبدأ بـ https://script.google.com');return;}
+  if(!raw.includes('/exec')){showConnErr('الرابط يجب أن ينتهي بـ /exec');return;}
+  localStorage.setItem(KEY,raw);document.getElementById('conn-screen').style.display='none';showDashboard();loadData(raw);
+}
+function showConnErr(m){const e=document.getElementById('conn-err');e.textContent='⚠️ '+m;e.style.display='block';}
+function toggleSettings(){
+  const el=document.getElementById('conn-screen');
+  el.style.display = (el.style.display==='none'||!el.style.display) ? 'flex' : 'none';
+}
+function disconnect(){
+  // "إعادة الجميع للرابط الافتراضي": يمسح أي تجاوز يدوي محفوظ ويعيد هذا الجهاز للرابط الثابت المعتمد تلقائياً
+  localStorage.removeItem(KEY);
+  document.getElementById('api-inp').value=DEFAULT_API_URL;
+  document.getElementById('conn-screen').style.display='none';
+  loadData(DEFAULT_API_URL);
+}
+function showDashboard(){document.getElementById('dashboard').style.display='block';document.getElementById('rfbtn').style.display='inline-flex';}
+
+// ── LOAD ──
+async function loadData(apiUrl){
+  apiUrl=apiUrl||localStorage.getItem(KEY)||DEFAULT_API_URL;
+  setLoading(true);clearErr();showTbl('<div class="stb"><div class="ic">⏳</div><div class="tx">جارٍ جلب البيانات...</div></div>');
+  try{
+    const res=await fetch(apiUrl);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    processData(json);
+    document.getElementById('upd').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+    // ── جلب بيانات الشحن الحية بالتوازي (لا يؤثر على سرعة ظهور الحوالات) ──
+    loadShipmentData().then(n => { if(n>0) renderPage(); });
+  }catch(e){
+    showErr('⚠️ تعذّر الاتصال بمصدر البيانات الحي: '+e.message+' — سيتم عرض آخر نسخة محفوظة كاحتياط.');
+    if(EMBEDDED_DATA&&EMBEDDED_DATA.ok){
+      processData(EMBEDDED_DATA);
+      document.getElementById('upd').textContent='⚠️ بيانات احتياطية (غير محدّثة) · '+new Date().toLocaleDateString('ar');
+    } else {
+      showTbl('<div class="stb"><div class="ic">⚠️</div><div class="tx">تعذّر جلب البيانات</div></div>');
+    }
+  }
+  setLoading(false);
+}
+
+// ── CSV PARSER ──
+function parseCSV(text){
+  return (text||'').replace(/\r/g,'').split('\n').map(line=>{
+    const cells=[];let cur='',inQ=false;
+    for(const c of line){if(c==='"')inQ=!inQ;else if(c===','&&!inQ){cells.push(cur.trim());cur='';}else cur+=c;}
+    cells.push(cur.trim());return cells;
+  }).filter(r=>r.some(c=>c));
+}
+
+// ── ROW MAPPER ──
+function mapRows(raw,sheetName){
+  if(!raw||raw.length<2)return[];
+  let hi=0;
+  for(let i=0;i<Math.min(raw.length,10);i++){const j=raw[i].join(' ').toLowerCase();if(j.includes('invoice')||j.includes('amount')||j.includes('swift')||j.includes('date')){hi=i;break;}}
+  const hdr=raw[hi].map(h=>h.toLowerCase().replace(/[\.\s]+/g,' ').trim());
+  const f=(...keys)=>{for(const k of keys){const i=hdr.findIndex(h=>h.includes(k.toLowerCase()));if(i>=0)return i;}return -1;};
+  const ci={
+    no:f('no.','no '),invoice:f('invoice no','invoice number'),
+    po:f('p.o','p o','odoo','( odoo'),date:f('date'),swift:f('receive swift','swift'),
+    amount:f('amount invoice','amount'),from_co:f('from co'),to_co:f('to co'),
+    bene:f('beneficiary bank','beneficiary'),container:f('حاوية','container'),manifest:f('منفيست','manifest'),
+  };
+  const bkIdx=hdr.map((h,i)=>h.includes('bank')?i:-1).filter(i=>i>=0);
+  ci.bank=bkIdx.length>1?(bkIdx.find(i=>i!==ci.bene)??bkIdx[bkIdx.length-1]):(bkIdx[0]??-1);
+  const nIdx=hdr.map((h,i)=>h.includes('notes')?i:-1).filter(i=>i>=0);
+  ci.n1=nIdx[0]??-1;ci.n2=nIdx[1]??-1;
+  const g=(r,i)=>(i>=0&&i<r.length)?r[i]:'';
+  const rows=[];let ctr=1;
+  for(const row of raw.slice(hi+1)){
+    if(!row.some(c=>c))continue;
+    const inv=g(row,ci.invoice),toCo=g(row,ci.to_co);
+    const amt=parseFloat((g(row,ci.amount)).replace(/[^0-9.-]/g,''))||0;
+    // قبول أي صف يحتوي فاتورة أو مبلغ أو شركة مستفيدة
+    if(!inv&&!amt&&!toCo)continue;
+    if(inv.toLowerCase().includes('invoice no')||inv.toLowerCase().includes('no.'))continue;
+    const n1=g(row,ci.n1),n2=g(row,ci.n2);
+    const notes=[n1,n2].filter(Boolean).join(' · ');
+    const nl=notes.toLowerCase();
+    let nt='direct';
+    if(nl.includes('advance')||nl.includes('adva'))nt='advance';
+    else if(nl.includes('balance')||nl.includes('remain'))nt='balance';
+    else if(notes&&!nl.includes('direct'))nt='other';
+    rows.push({
+      _sheet:sheetName,no:g(row,ci.no)||String(ctr),
+      invoice:inv,po:g(row,ci.po).trim(),date:g(row,ci.date),swift:g(row,ci.swift),
+      amount:amt,amt_d:amt?'$'+amt.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}):'—',
+      from_co:g(row,ci.from_co)||'WAHAJ ALMASA CO',
+      to_co:toCo,to_co_norm:normCo(toCo),
+      bene:g(row,ci.bene),bank:g(row,ci.bank),
+      container:g(row,ci.container),manifest:g(row,ci.manifest),
+      notes,n2raw:n2||'',nt,grpIdx:-1,
+    });
+    ctr++;
+  }
+  return rows;
+}
+
+// ── ASSIGN INSTALMENT GROUPS ──
+// rows sharing the same PO (non-empty) across the full dataset get a group color index
+function assignGroups(allRows){
+  const poMap={};
+  allRows.forEach(r=>{if(r.po){(poMap[r.po]=poMap[r.po]||[]).push(r);}});
+  let colorIdx=0;
+  Object.values(poMap).forEach(grp=>{
+    if(grp.length>1){
+      const ci=colorIdx%5;
+      grp.forEach(r=>r.grpIdx=ci);
+      colorIdx++;
+    }
+  });
+}
+
+// ── PENDING TRANSFER KEYWORDS (قيد التدقيق / تم حجز المبلغ) ──
+const PEND_KW=['قيد التدقيق','تم حجز المبلغ','حجز المبلغ','pending','hold'];
+function isPending(r){
+  const t=(r.notes+' '+r.swift+' '+r.n2raw).toLowerCase();
+  return PEND_KW.some(k=>t.includes(k.toLowerCase()));
+}
+
+// ── PROCESS ──
+function processData(json){
+  if(!json.ok)throw new Error(json.error||'خطأ في البيانات');
+  if(!json.sheets||!json.sheets.length)throw new Error('لا توجد شيتات');
+  sheets=json.sheets.map(s=>({name:s.name,gid:s.gid||'',rows:mapRows(parseCSV(s.csv),s.name)})).filter(s=>s.rows.length>0);
+  if(!sheets.length)throw new Error('جميع الشيتات فارغة');
+  buildShipmentMap();
+  // assign rejection, pending and groups on full dataset
+  const allRows=sheets.flatMap(s=>s.rows);
+  allRows.forEach(r=>{r.rejected=isRejected(r);r.pending=!r.rejected&&isPending(r);r.shipStatus=shipmentStatus(r.po);});
+  assignGroups(allRows);
+  buildTabs();switchSheet(-1);
+}
+
+// ── TABS ──
+function buildTabs(){
+  const total=sheets.reduce((s,sh)=>s+sh.rows.length,0);
+  let html=`<button class="tab tab-all ${curIdx===-1?'on':''}" onclick="switchSheet(-1)">📊 كل الشيتات <span class="tcnt">${total}</span></button>`;
+  html+=sheets.map((s,i)=>`<button class="tab ${i===curIdx?'on':''}" onclick="switchSheet(${i})">${s.name}<span class="tcnt">${s.rows.length}</span></button>`).join('');
+  document.getElementById('tabs').innerHTML=html;
+}
+function switchSheet(i){
+  curIdx=i;curRows=i===-1?sheets.flatMap(s=>s.rows):sheets[i].rows;
+  page=0;document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===-1?j===0:j===i+1));
+  buildSelects();filter();
+}
+
+// ── BUILD SELECTS — deduplicate supplier names ──
+function buildSelects(){
+  // Deduplicate: group raw names by normalised name, pick longest raw version for display
+  const coMap={};
+  curRows.forEach(r=>{
+    if(!r.to_co)return;
+    const k=r.to_co_norm;
+    if(!coMap[k])coMap[k]={display:r.to_co,count:0,norms:[k]};
+    coMap[k].count++;
+    if(r.to_co.length>coMap[k].display.length)coMap[k].display=r.to_co;
+  });
+  // Sort by display name
+  const coEntries=Object.entries(coMap).sort((a,b)=>a[1].display.localeCompare(b[1].display));
+  document.getElementById('fc').innerHTML=
+    '<option value="">كل الشركات المستفيدة</option>'+
+    coEntries.map(([k,v])=>`<option value="${k}">${v.display} (${v.count})</option>`).join('');
+
+  const bks=[...new Set(curRows.map(r=>r.bene).filter(Boolean))].sort();
+  document.getElementById('fb').innerHTML='<option value="">كل البنوك</option>'+bks.map(b=>`<option value="${b}">${b.substring(0,48)}</option>`).join('');
+  const fcos=[...new Set(curRows.map(r=>r.from_co).filter(Boolean))].sort();
+  document.getElementById('ff').innerHTML='<option value="">كل الشركات المُرسِلة</option>'+fcos.map(c=>`<option>${c}</option>`).join('');
+}
+
+// ── FILTER ──
+function filter(){
+  const q=document.getElementById('sch').value.toLowerCase();
+  const pay=document.getElementById('fp').value;
+  const coNorm=document.getElementById('fc').value;
+  const bk=document.getElementById('fb').value;
+  const ff=document.getElementById('ff').value;
+  const fs=document.getElementById('fs').value;
+  const fst=document.getElementById('fst').value;
+  const srt=document.getElementById('srt').value;
+  fltRows=curRows.filter(r=>{
+    if(pay&&r.nt!==pay)return false;
+    if(coNorm&&r.to_co_norm!==coNorm)return false;
+    if(bk&&r.bene!==bk)return false;
+    if(ff&&r.from_co!==ff)return false;
+    if(fs==='rejected'&&!r.rejected)return false;
+    if(fs==='pending'&&!r.pending)return false;
+    if(fs==='group'&&r.grpIdx<0)return false;
+    if(fst&&r.shipStatus!==fst)return false;
+    if(q){const t=[r.invoice,r.to_co,r.bene,r.bank,r.po,r.notes,r.container,r.manifest,r.from_co,r._sheet].join(' ').toLowerCase();if(!t.includes(q))return false;}
+    return true;
+  });
+  if(srt==='dd')fltRows.sort((a,b)=>pd(b.date)-pd(a.date));
+  else if(srt==='da')fltRows.sort((a,b)=>pd(a.date)-pd(b.date));
+  else if(srt==='am')fltRows.sort((a,b)=>b.amount-a.amount);
+  else if(srt==='al')fltRows.sort((a,b)=>a.amount-b.amount);
+  else if(srt==='grp')fltRows.sort((a,b)=>{
+    const ak=a.grpIdx>=0?a.po:'zzz'+a.invoice;
+    const bk2=b.grpIdx>=0?b.po:'zzz'+b.invoice;
+    return ak.localeCompare(bk2)||(a.amount-b.amount);
+  });
+  page=0;updateStats();renderPage();
+}
+function pd(s){if(!s)return 0;const p=s.split('/');return p.length===3?new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime()||0:0;}
+
+// ── STATS ──
+function updateStats(){
+  const n=fltRows.length,tot=fltRows.reduce((s,r)=>s+r.amount,0);
+  const dir=fltRows.filter(r=>r.nt==='direct').length;
+  const cos=new Set(fltRows.map(r=>r.to_co_norm).filter(Boolean)).size;
+  const rej=fltRows.filter(r=>r.rejected).length;
+  const pend=fltRows.filter(r=>r.pending).length;
+  const grpd=fltRows.filter(r=>r.grpIdx>=0).length;
+  document.getElementById('s0').textContent=n.toLocaleString();
+  document.getElementById('s1').textContent='$'+tot.toLocaleString('en',{maximumFractionDigits:0});
+  document.getElementById('s1b').textContent=n+' حوالة';
+  document.getElementById('s2').textContent=dir;
+  document.getElementById('s3').textContent=cos;
+  document.getElementById('s5').textContent=rej;
+  document.getElementById('s6').textContent=grpd;
+  const s7=document.getElementById('s7');
+  if(s7)s7.textContent=pend;
+}
+
+// ── TOGGLE GROUP HIGHLIGHT ──
+function toggleGroupHighlight(){
+  groupHighlight=!groupHighlight;
+  const btn=document.getElementById('toggleGrpBtn');
+  btn.textContent=(groupHighlight?'🎨 تمييز الدفعات المجزأة: تشغيل':'🎨 تمييز الدفعات المجزأة: إيقاف');
+  btn.className='btn-toggle'+(groupHighlight?'':' off');
+  renderPage();
+}
+
+// ── RENDER ──
+const GRP_LABELS=['١','٢','٣','٤','٥'];
+function renderPage(){
+  const start=page*PAGE_SZ,slice=fltRows.slice(start,start+PAGE_SZ);
+  const tbody=document.getElementById('tbody');
+  const showSheet=curIdx===-1;
+  if(!fltRows.length){
+    tbody.innerHTML=`<tr><td colspan="15"><div class="stb"><div class="ic">🔍</div><div class="tx">لا توجد سجلات مطابقة</div></div></td></tr>`;
+    document.getElementById('pag').style.display='none';return;
+  }
+  const nb=(r)=>{
+    if(r.rejected){
+      const reason=r.notes||r.swift||'';
+      const short=reason.length>50?reason.substring(0,48)+'…':reason;
+      return `<span class="rej-badge">🚫 مرفوضة / ملغاة</span>${short?`<br><span style="font-size:10px;color:var(--red);margin-top:3px;display:block">${short}</span>`:''}`;
+    }
+    if(r.pending){
+      return `<span class="pending-alert">🟡 قيد التدقيق / محجوزة</span>`;
+    }
+    if(!r.notes)return '<span style="color:var(--ht)">—</span>';
+    const cl=r.nt==='direct'?'bd':r.nt==='advance'?'ba':r.nt==='balance'?'bb':'bo';
+    const txt=r.notes.length>52?r.notes.substring(0,50)+'…':r.notes;
+    return `<span class="badge ${cl}">${txt}</span>`;
+  };
+  const swiftCell=(r)=>{
+    if(!r.swift)return '—';
+    const pending=['تم حجز','قيد التدقيق','pending','hold','حجز'];
+    if(pending.some(k=>r.swift.includes(k)))
+      return `<span class="sw-pending">⏳ ${r.swift}</span>`;
+    if(r.rejected)return `<span style="font-family:monospace;font-size:10.5px;color:var(--red);background:#FFF0F0;padding:2px 7px;border-radius:4px;display:inline-block">✕ ${r.swift}</span>`;
+    return `<span class="sw-c">${r.swift}</span>`;
+  };
+  const grpPill=(r)=>{
+    if(r.grpIdx<0||!groupHighlight)return '';
+    const g=r.grpIdx%5;
+    return `<span class="grp-pill g${g}" data-tip="دفعة ضمن طلب ${r.po}">📦 م${GRP_LABELS[g]}</span> `;
+  };
+  const rowClass=(r)=>{
+    let cls='';
+    if(r.rejected)cls+=' row-rejected';
+    else if(r.pending)cls+=' row-pending';
+    else if(r.grpIdx>=0&&groupHighlight)cls+=` grp-${r.grpIdx%5}`;
+    return cls.trim();
+  };
+
+  // Fast string-concat render (avoids per-row DOM thrash) — handles 1000+ rows smoothly
+  const parts=new Array(slice.length);
+  for(let i=0;i<slice.length;i++){
+    const r=slice[i];
+    parts[i]=`<tr class="${rowClass(r)}">
+    <td class="no-c">${r.rejected?'<span class="rej-icon">🚫</span>':(r.pending?'🟡':r.no)}</td>
+    <td class="inv-c">${grpPill(r)}${r.invoice||'—'}</td>
+    <td style="font-size:11px;font-weight:700"><span style="color:var(--blue,#1E40AF);cursor:pointer;text-decoration:underline;text-underline-offset:2px" onclick="openModal('${r.po}')" title="اضغط لعرض التفاصيل الكاملة">${r.po||'—'}</span></td>
+    <td style="text-align:center">${shipmentBadge(r.po)}</td>
+    <td class="dt-c">${r.date||'—'}</td>
+    <td class="dt-c">${swiftCell(r)}</td>
+    <td class="amt-c" style="${r.rejected?'text-decoration:line-through;color:var(--ht)':''}">${r.amt_d}</td>
+    <td class="co-c" style="font-size:11px">${r.from_co}</td>
+    <td class="co-c" style="color:var(--blue)">${r.to_co||'—'}</td>
+    <td class="bk-c">${r.bene||'—'}</td>
+    <td class="bk-c">${r.bank||'—'}</td>
+    <td style="font-size:10px;color:var(--mt);font-family:monospace;white-space:normal;max-width:120px;word-break:break-word" title="${getContainerDisplay(r.po)}">${getContainerDisplay(r.po)}</td>
+    <td style="font-size:11px;color:var(--mt)">${getCountDisplay(r.po)||r.manifest||'—'}</td>
+    <td>${nb(r)}</td>
+    <td>${showSheet&&r._sheet?`<span class="sheet-tag">${r._sheet}</span>`:'—'}</td>
+  </tr>`;
+  }
+  parts.push(`<tr class="tot"><td colspan="6" style="font-size:11.5px">إجمالي الصفحة (${slice.length} سجل)</td><td class="amt-c">$${slice.filter(r=>!r.rejected).reduce((s,r)=>s+r.amount,0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td colspan="8" style="font-size:11px;color:var(--ht)">* لا يشمل المرفوضة والملغاة</td></tr>`);
+  tbody.innerHTML=parts.join('');
+
+  const total=fltRows.length,pages=Math.ceil(total/PAGE_SZ);
+  const pag=document.getElementById('pag');pag.style.display='flex';
+  const validAmt=fltRows.filter(r=>!r.rejected).reduce((s,r)=>s+r.amount,0);
+  document.getElementById('pi').textContent=`${start+1}–${Math.min(start+PAGE_SZ,total)} من ${total} · صافي المقبولة: $${validAmt.toLocaleString('en',{maximumFractionDigits:0})}`;
+  if(pages<=1){document.getElementById('pbs').innerHTML='';return;}
+  let h=`<button class="pb" onclick="goP(${page-1})" ${page===0?'disabled':''}>‹</button>`;
+  const s=Math.max(0,page-2),e=Math.min(pages-1,s+5);
+  for(let p=s;p<=e;p++)h+=`<button class="pb ${p===page?'on':''}" onclick="goP(${p})">${p+1}</button>`;
+  h+=`<button class="pb" onclick="goP(${page+1})" ${page>=pages-1?'disabled':''}>›</button>`;
+  document.getElementById('pbs').innerHTML=h;
+}
+function goP(p){const pages=Math.ceil(fltRows.length/PAGE_SZ);if(p<0||p>=pages)return;page=p;renderPage();document.querySelector('.tw').scrollIntoView({behavior:'smooth',block:'start'});}
+function changePageSize(){
+  PAGE_SZ=parseInt(document.getElementById('psz').value,10);
+  page=0;renderPage();
+}
+
+// ── EXPORT ──
+function expCSV(){
+  const hd=['No.','Invoice No.','P.O (Odoo)','حالة الشحن','تاريخ الشحن','BL','ATA بغداد','Date','Receive Swift','Amount','From Co.','To CO.','Beneficiary Bank','Bank (Iraq)','Container','Manifest','Notes','Sheet','Rejected','Pending','Group'];
+  const body=fltRows.map(r=>{
+    const sh=getShipmentInfo(r.po);
+    const stMap={arrived:'وصلت بغداد',atport:'وصلت ميناء وسيط',transit:'في الطريق',notshipped:'لم تُشحن',na:'—'};
+    return [r.no,r.invoice,r.po,stMap[r.shipStatus]||'—',sh?sh.shipDate:'',sh?sh.bl:'',sh?sh.ataBaghdad:'',r.date,r.swift,r.amount,r.from_co,r.to_co,r.bene,r.bank,r.container,r.manifest,r.notes,r._sheet,r.rejected?'نعم':'لا',r.pending?'نعم':'لا',r.grpIdx>=0?r.po:''].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',');
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+[hd.join(','),...body].join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='wahaj_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+}
+
+// ── HELPERS ──
+function setLoading(on){const b=document.getElementById('rfbtn');b.disabled=on;document.getElementById('rfic').innerHTML=on?'<span class="spin"></span>':'↻';}
+function showErr(m){document.getElementById('err-a').innerHTML=`<div class="bnr e">${m}</div>`;}
+function clearErr(){document.getElementById('err-a').innerHTML='';}
+function showTbl(h){const b=document.getElementById('tbody');if(b)b.innerHTML=`<tr><td colspan="15">${h}</td></tr>`;}
+
+// ── FULL SHIPMENT DETAIL DATA ──
+const SHIP_FULL = [{"po": "P00327", "details": "بوري فلكسبل 15 م", "shipper": "ZHEJIANG DEYA", "invoiceMakhzan": "202", "manifest": "17493", "roq": "332+356", "pi": "FL-DY-20250913", "hscode": "7411101100", "customsDecl": "25383", "swiftDate": "22-2-2026", "amount": "$243,299", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00368", "details": "GAS FOTON R134A / 13.6KG + 6KG + 950G", "shipper": "YONGHE", "invoiceMakhzan": "1", "manifest": "20699", "roq": "ماعندي", "pi": "ماعندي", "hscode": "290345", "customsDecl": "29072", "swiftDate": "5-4-2026", "amount": "$138,514", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00365", "details": "داخلية 2طن هاربكس + 1.5 طن هاربكس", "shipper": "TCL AIR CONDITIONER", "invoiceMakhzan": "2", "manifest": "30872", "roq": "366", "pi": "PI-Sweer-251023", "hscode": "841510-841590", "customsDecl": "32495", "swiftDate": "19-11-2025", "amount": "$88,976", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00364", "details": "COMPRESSOR QD-30 + QD-36 كول ماكس", "shipper": "ZHEJIANG ASBEILA", "invoiceMakhzan": "3", "manifest": "24900", "roq": "370", "pi": "ZJ-ASBL25059", "hscode": "84143019", "customsDecl": "14225", "swiftDate": "3-2-2026", "amount": "$79,870", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00366", "details": "باندج هاربكس 6 سم", "shipper": "GUANGZHOU REFACT", "invoiceMakhzan": "4", "manifest": "34560", "roq": "376", "pi": "REMA251007", "hscode": "40094100", "customsDecl": "94 D", "swiftDate": "26-11-2025", "amount": "$30,647", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00360", "details": "بوري فافون", "shipper": "RENQIU CITY TIANYAO", "invoiceMakhzan": "5", "manifest": "19122", "roq": "352", "pi": "TY20251028", "hscode": "8307900000", "customsDecl": "17502", "swiftDate": "29-1-2026", "amount": "$126,653", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00371", "details": "R600A غاز فيوري 120غم / كغم6.5 R600A سيزون", "shipper": "ZHEJIANG JUSHEN", "invoiceMakhzan": "6", "manifest": "13373", "roq": "13373", "pi": "gas25-104", "hscode": "2901109000", "customsDecl": "6473", "swiftDate": "13-1-2026", "amount": "$31,800", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00372", "details": "مروحة ماسة كول + كبلري", "shipper": "YIWU HANWEI", "invoiceMakhzan": "8", "manifest": "24938", "roq": "346+377", "pi": "HW251030+REMA2512", "hscode": "85011000+7411101901", "customsDecl": "17560", "swiftDate": "17-2-2026", "amount": "$72,520", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00374", "details": "منظف كرستال + دهن 3جي اس", "shipper": "GUANGZHOU HAIFEI", "invoiceMakhzan": "9", "manifest": "21075", "roq": "367+345", "pi": "AL202501115E01", "hscode": "3402509000+34039999", "customsDecl": "30506", "swiftDate": "25-2-2026", "amount": "$37,452", "bank": "مصرف بغداد", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00373", "details": "MAP PPRO 400G SEASON", "shipper": "ZHEJIANG JUSHEN NEW MATERIAL", "invoiceMakhzan": "10", "manifest": "24432", "roq": "ماعندي", "pi": "ماعندي", "hscode": "2901220000", "customsDecl": "8816", "swiftDate": "19-1-2026", "amount": "$56,100", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00377", "details": "بوري فلكسبل 6 م + 7.5 م", "shipper": "ZHEJIANG DEYA", "invoiceMakhzan": "11", "manifest": "20885", "roq": "ماعندي", "pi": "ماعندي", "hscode": "7411101100", "customsDecl": "31473", "swiftDate": "7-3-2026", "amount": "$456,982", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00376", "details": "بوري جاهز تك 7.5م + بوري نحاس فلكسبل 7.5م", "shipper": "ZHEJIANG DEYA", "invoiceMakhzan": "12", "manifest": "22571", "roq": "ماعندي", "pi": "ماعندي", "hscode": "7411101100", "customsDecl": "6503", "swiftDate": "5-4-2026", "amount": "$548,128", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00375", "details": "منظفات + دهن", "shipper": "GUANGZHOU HAIFEI", "invoiceMakhzan": "13", "manifest": "21091", "roq": "367+345", "pi": "AL202501115E02", "hscode": "34039999", "customsDecl": "32524", "swiftDate": "23-2-2026", "amount": "$42,675", "bank": "المصرف العراقي للتجارة", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00379", "details": "شبكة ثلاجة + مجمدة", "shipper": "GUANGZHOU REFACT", "invoiceMakhzan": "14", "manifest": "19953", "roq": "375", "pi": "REMA2510", "hscode": "8418999990", "customsDecl": "8668", "swiftDate": "29-1-2026", "amount": "$36,025", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00394", "details": "بوري", "shipper": "ZHEJIANG DEYA", "invoiceMakhzan": "21", "manifest": "34538", "roq": "ماعندي", "pi": "ماعندي", "hscode": "34969", "customsDecl": "34969", "swiftDate": "28-4-2026", "amount": "$258,977", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00370", "details": "فريز", "shipper": "JIANGSU FENGRUN", "invoiceMakhzan": "7", "manifest": "37718", "roq": "351", "pi": "FRFT-052753", "hscode": "84189999", "customsDecl": "35075", "swiftDate": "2-4-2026", "amount": "$274,162", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00383", "details": "قاعدة ريفكو 2 طن", "shipper": "WENAN JIANGHONG", "invoiceMakhzan": "17", "manifest": "45237", "roq": "358", "pi": "2025JH1020", "hscode": "73089000", "customsDecl": "43256", "swiftDate": "10-11-2025", "amount": "$42,946", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "2025JH1020/37418$"}, {"po": "P00428", "details": "REFRIGERANT GAS & RUBBER INSULATION", "shipper": "AL SWEER TRADING FZE", "invoiceMakhzan": "28", "manifest": "46593", "roq": "--", "pi": "--", "hscode": "29034500+40091190", "customsDecl": "54640", "swiftDate": "26-4-2026", "amount": "$357,170", "bank": "مصرف بغداد", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00407", "details": "كومبريسر", "shipper": "HUAYI", "invoiceMakhzan": "22", "manifest": "46588", "roq": "--", "pi": "--", "hscode": "84143011", "customsDecl": "35957", "swiftDate": "22-4-2026", "amount": "$116,704", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00382", "details": "ماسة كابستر + فولتكس كابستر", "shipper": "MASCOTOP", "invoiceMakhzan": "16", "manifest": "44808", "roq": "353", "pi": "MTWA20251209", "hscode": "853225", "customsDecl": "34142", "swiftDate": "19-3-2026", "amount": "$98,250", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00429", "details": "بوري ماكسل + ايرون", "shipper": "pacshoma", "invoiceMakhzan": "27", "manifest": "--", "roq": "142", "pi": "142", "hscode": "--", "customsDecl": "", "swiftDate": "", "amount": "$300,681", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00443", "details": "بوري ماكسل + ايرون", "shipper": "pacshoma", "invoiceMakhzan": "29", "manifest": "--", "roq": "143", "pi": "143", "hscode": "--", "customsDecl": "", "swiftDate": "", "amount": "$326,391", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "447+446", "details": "بوري ماكسل + ايرون + بضاعة قديمة", "shipper": "pacshoma", "invoiceMakhzan": "30", "manifest": "---", "roq": "144", "pi": "144", "hscode": "--", "customsDecl": "", "swiftDate": "", "amount": "", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00449", "details": "بوري ماكسل + ايرون", "shipper": "pacshoma", "invoiceMakhzan": "--", "manifest": "--", "roq": "146", "pi": "146", "hscode": "--", "customsDecl": "", "swiftDate": "", "amount": "", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00392", "details": "فاكيوم + ماطور بلور هاربكس + واي برانج + ولف شحن سيزون", "shipper": "GUANGZHOU REFACT", "invoiceMakhzan": "18", "manifest": "", "roq": "359+360+363+364", "pi": "", "hscode": "8415909000", "customsDecl": "8675", "swiftDate": "27-1-2026", "amount": "$152,492", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$5,370"}, {"po": "P00393", "details": "بوري", "shipper": "ZHEJIANG DEYA", "invoiceMakhzan": "20", "manifest": "", "roq": "", "pi": "", "hscode": "7411101100", "customsDecl": "37000", "swiftDate": "22-4-2026", "amount": "$390,051", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$16,110"}, {"po": "P00399", "details": "كونتكتر + كيج + ماطور+ثرموستات + عازل", "shipper": "REFACT", "invoiceMakhzan": "23", "manifest": "", "roq": "", "pi": "", "hscode": "4009410000", "customsDecl": "28298", "swiftDate": "1-3-2026", "amount": "$105,043", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$5,370"}, {"po": "P00305", "details": "كونتكتر + كيج + ماطور+ثرموستات + عازل", "shipper": "REFACT", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "4009410000", "customsDecl": "28299", "swiftDate": "22-2-2026", "amount": "$79,517", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$5,370"}, {"po": "P00406", "details": "بوري", "shipper": "ZHEJIANG DEYA", "invoiceMakhzan": "25", "manifest": "", "roq": "", "pi": "", "hscode": "7411101100", "customsDecl": "35938", "swiftDate": "2-5-2026", "amount": "$261,503", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$10,740"}, {"po": "P00381", "details": "تيب هاربكس اسود + ابيض", "shipper": "SHUSHI GROUP", "invoiceMakhzan": "15", "manifest": "", "roq": "381 make it in odoo", "pi": "SC01122504D", "hscode": "3919109900", "customsDecl": "17656", "swiftDate": "6-2-2026", "amount": "$120,946", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00345", "details": "FLARING TOOL / TUBE EXPANDER / MANIFOLD GAUGE / VACUUM PUMP ...", "shipper": "JINHUA WEIKE", "invoiceMakhzan": "19", "manifest": "", "roq": "368", "pi": "ROQ368-REV2", "hscode": "8205590000", "customsDecl": "23440", "swiftDate": "22-2-2026", "amount": "$169,202", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$5,500"}, {"po": "P00396", "details": "غاز 22 كليماكس + وان باريس", "shipper": "TABRIGAS EGYPT", "invoiceMakhzan": "26", "manifest": "", "roq": "", "pi": "", "hscode": "34973", "customsDecl": "", "swiftDate": "8-4-2026", "amount": "$165,240", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "Fala"}, {"po": "P00391", "details": "مروحة انجكس", "shipper": "Hangzhou Jinjiu Electric Appliance Co.", "invoiceMakhzan": "24", "manifest": "", "roq": "", "pi": "", "hscode": "4786", "customsDecl": "", "swiftDate": "15-2-2026", "amount": "$70,932", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "$3,500"}, {"po": "P00456", "details": "REFRIGERANT GAS 13.6KG SUPERTONE & RUBBER INSULATION", "shipper": "دبي", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "61375", "customsDecl": "", "swiftDate": "5-5-2026", "amount": "$354,890", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "limtid", "lcost": ""}, {"po": "P00408", "details": "COMPRESSOR", "shipper": "HUAYI", "invoiceMakhzan": "", "manifest": "", "roq": "384", "pi": "", "hscode": "", "customsDecl": "", "swiftDate": "4-6-2026", "amount": "$448,083", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": ""}, {"po": "P00386", "details": "ROTARY COMPRESSOR", "shipper": "ZHUHAI LANDA COMPRESSOR", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "84143000", "customsDecl": "", "swiftDate": "16-2-2026", "amount": "$64,716", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "-CIF", "lcost": "$67,204"}, {"po": "P00413", "details": "INSULATION COPPER TUBE", "shipper": "DEYA + DEYA", "invoiceMakhzan": "", "manifest": "", "roq": "400", "pi": "", "hscode": "7411101100+903290", "customsDecl": "", "swiftDate": "", "amount": "", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00405", "details": "Copper Coil Maksel", "shipper": "HONG KONG HAILIANG", "invoiceMakhzan": "", "manifest": "", "roq": "398", "pi": "26HLHK02E001", "hscode": "", "customsDecl": "", "swiftDate": "", "amount": "$354,284", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00404", "details": "قفاله + بوري", "shipper": "HONGKONG HAILIANG METAL", "invoiceMakhzan": "", "manifest": "", "roq": "372+408", "pi": "26HLHK02E005A", "hscode": "", "customsDecl": "", "swiftDate": "", "amount": "$263,472", "bank": "مصرف بغداد", "payStatus": "تم تقديم طلب", "payType": "limtid", "lcost": ""}, {"po": "P00380", "details": "AC PIPE", "shipper": "RENQIU CITY TIANYAO", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "903290", "customsDecl": "", "swiftDate": "", "amount": "$151,093", "bank": "المصرف الاهلي", "payStatus": "تم حجز المبلغ", "payType": "", "lcost": ""}, {"po": "P00481", "details": "REFRIGERATION COMPRESSOR & ACCESSORIES & INSULATION TUBE", "shipper": "HUAYI", "invoiceMakhzan": "", "manifest": "", "roq": "384", "pi": "", "hscode": "84143011+9032201+400941", "customsDecl": "", "swiftDate": "", "amount": "$520,742", "bank": "المصرف الاهلي", "payStatus": "تم تقديم طلب", "payType": "", "lcost": ""}, {"po": "P00412", "details": "DRAIN HOSE & AIR CONDITIONER BRACKET", "shipper": "WENAN", "invoiceMakhzan": "", "manifest": "", "roq": "421+422", "pi": "", "hscode": "73089000/39173900", "customsDecl": "", "swiftDate": "24-3-2026", "amount": "$24,313", "bank": "المصرف الاهلي", "payStatus": "دفع جزئي", "payType": "35%", "lcost": ""}, {"po": "P00390", "details": "REFRIGERATOR COMPRESSOR & INSULATION TUBE", "shipper": "HANGZHOU JUHE REFRIGERATION", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "4009410000/8414301100", "customsDecl": "", "swiftDate": "", "amount": "", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00469", "details": "بوري", "shipper": "HONGKONG HAILIANG METAL", "invoiceMakhzan": "", "manifest": "", "roq": "408", "pi": "26HLHK02E005", "hscode": "", "customsDecl": "", "swiftDate": "", "amount": "$350,971", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00452", "details": "غاز فريون 22 R - 6400 اسطوانة", "shipper": "Abdullah Hashim الدمام", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "", "customsDecl": "", "swiftDate": "18-5-2026", "amount": "$384,000", "bank": "المصرف الاهلي", "payStatus": "مكتملة", "payType": "Full Payment", "lcost": "Fala 18175"}, {"po": "P00470", "details": "غاز ريفريجنت 22R - 13.6 كيلو", "shipper": "سوريا / WAHAJ", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "", "hscode": "", "customsDecl": "", "swiftDate": "", "amount": "", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00398", "details": "THERMOSTAT AND HEATING", "shipper": "RECO SRL", "invoiceMakhzan": "", "manifest": "", "roq": "", "pi": "2600018", "hscode": "903210", "customsDecl": "", "swiftDate": "", "amount": "851,800 EUR", "bank": "", "payStatus": "", "payType": "", "lcost": ""}, {"po": "P00482", "details": "REFRIGERATION COMPRESSOR & ACCESSORIES & INSULATION TUBE", "shipper": "HUAYI", "invoiceMakhzan": "", "manifest": "", "roq": "384", "pi": "", "hscode": "84143011+90322010+400941", "customsDecl": "", "swiftDate": "", "amount": "", "bank": "", "payStatus": "", "payType": "", "lcost": ""}];
+let SHIP_FULL_MAP = {};
+(function(){ SHIP_FULL.forEach(r=>{ const k=r.po.trim().toUpperCase(); SHIP_FULL_MAP[k]=r; }); })();
+
+function getFullShip(po){ return po ? SHIP_FULL_MAP[po.trim().toUpperCase()]||null : null; }
+
+function payBadge(status){
+  if(!status) return '<span class="pay-badge pay-other">—</span>';
+  const s=status.trim();
+  if(s==='مكتملة') return '<span class="pay-badge pay-done">✓ مكتملة</span>';
+  if(s.includes('جزئي')||s.includes('partial')) return '<span class="pay-badge pay-partial">~ '+s+'</span>';
+  if(s.includes('تقديم')||s.includes('حجز')) return '<span class="pay-badge pay-pending">⏳ '+s+'</span>';
+  return '<span class="pay-badge pay-other">'+s+'</span>';
+}
+
+function shipStatusLg(po){
+  const st=shipmentStatus(po);
+  const map={
+    arrived:{cls:'ssl-arrived',icon:'📦',label:'وصلت بغداد'},
+    atport: {cls:'ssl-atport', icon:'⚓',label:'وصلت ميناء وسيط'},
+    transit:{cls:'ssl-transit',icon:'🚢',label:'في الطريق'},
+    notshipped:{cls:'ssl-notshipped',icon:'⏳',label:'لم تُشحن بعد'},
+    na:     {cls:'ssl-na',     icon:'—', label:'غير مسجلة'}
+  };
+  const m=map[st]||map.na;
+  return '<span class="ship-status-lg '+m.cls+'">'+m.icon+' '+m.label+'</span>';
+}
+
+function field(label,val,cls,mono){
+  if(val===undefined||val===null||val==='') val='—';
+  const vc=cls?(' '+cls):'';
+  const mc=mono?' mono':'';
+  return '<div class="modal-field'+vc+'"><div class="mf-label">'+label+'</div><div class="mf-val'+mc+'">'+val+'</div></div>';
+}
+function fieldFull(label,val,cls){ return field(label,val,(cls||'')+' full'); }
+
+function openModal(po){
+  if(!po||po==='—') return;
+  const row = curRows.find(r=>r.po===po) || {};
+  const ship = getShipmentInfo(po) || {};
+  const full = getFullShip(po) || {};
+
+  document.getElementById('m-po').textContent=po;
+
+  let body='';
+
+  // ── قسم 1: بيانات الحوالة البنكية ──
+  body+='<div class="modal-section">';
+  body+='<div class="modal-sec-title">🏦 بيانات الحوالة البنكية</div>';
+  body+='<div class="modal-grid">';
+  body+=field('المورد (To CO.)', row.to_co, 'blue');
+  body+=field('رقم الفاتورة', row.invoice, '', true);
+  body+=field('مبلغ الفاتورة', row.amt_d||full.amount, 'big');
+  body+=field('البنك المُرسِل', row.bank);
+  body+=field('بنك المستفيد', row.bene);
+  body+=field('تاريخ إصدار السويفت', row.swift);
+  body+=field('نوع الدفع', row.nt);
+  body+=field('الشركة المُرسِلة', row.from_co);
+  if(row.notes && row.notes!=='—') body+=fieldFull('ملاحظات الحوالة', row.notes, 'highlight');
+  body+='</div></div>';
+
+  // ── قسم 2: حالة الشحن ──
+  body+='<div class="modal-section">';
+  body+='<div class="modal-sec-title">🚢 بيانات الشحن</div>';
+  body+='<div class="modal-grid">';
+  body+='<div class="modal-field full"><div class="mf-label">حالة الشحن</div><div>'+shipStatusLg(po)+'</div></div>';
+  body+=field('تاريخ الشحن (ETD)', ship.shipDate||full.shipDate||'');
+  body+=field('ETA أم قصر', ship.etaUmQasr||ship.etaExpected||full.etaExpected||'');
+  body+=field('ATA بغداد', ship.ataBaghdad||'');
+  body+=field('بوليصة الشحن (B/L)', ship.bl||full.bl||'', '', true);
+  body+=field('خط الملاحة', ship.line||full.line||'');
+  body+=field('عدد الحاويات', ship.containerCount||full.containerCount||'');
+  body+=fieldFull('أرقام الحاويات', ship.containerNo||full.containerNo||'', '');
+  if(ship.notes||full.notes) body+=fieldFull('ملاحظات الشحن', ship.notes||full.notes||'', 'highlight');
+  body+='</div></div>';
+
+  // ── قسم 3: بيانات اللوجستيك والمخزن ──
+  if(full.details||full.invoiceMakhzan||full.manifest||full.roq||full.pi||full.hscode||full.customsDecl||full.lcost||full.shipper){
+    body+='<div class="modal-section">';
+    body+='<div class="modal-sec-title">📦 بيانات اللوجستيك والمخزن</div>';
+    body+='<div class="modal-grid">';
+    if(full.details) body+=fieldFull('التفاصيل / البضاعة', full.details);
+    body+=field('الشاحن / المصنّع', full.shipper||'');
+    body+=field('فاتورة المخزن', full.invoiceMakhzan||'', '', true);
+    body+=field('رقم المنفيست', full.manifest||'', '', true);
+    body+=field('رقم ROQ', full.roq||'', '', true);
+    body+=field('رقم PI', full.pi||'', '', true);
+    body+=field('HS Code', full.hscode||'', '', true);
+    body+=field('البيان المسبق', full.customsDecl||'', '', true);
+    body+=field('مبلغ الشحن (L/Cost)', full.lcost||'');
+    if(full.payStatus||full.swiftDate){
+      body+=field('حالة الدفع', payBadge(full.payStatus));
+      body+=field('تاريخ السويفت', full.swiftDate||'');
+      body+=field('البنك المُرسِل (شحن)', full.bank||'');
+      body+=field('نوع الدفع', full.payType||'');
+    }
+    body+='</div></div>';
+  }
+
+  // ── قسم المرفقات ──
+  body += '<div class="modal-section att-section-wrap">' + buildAttSection(po) + '</div>';
+
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal-ov').style.display='flex';
+  document.body.style.overflow='hidden';
+
+  // تحميل المرفقات بعد رسم النافذة
+  setTimeout(() => attLoadFiles(po), 120);
+}
+
+function closeModal(){
+  document.getElementById('modal-ov').style.display='none';
+  document.body.style.overflow='';
+}
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+
+
+// ════════════════════════════════════════════════════════
+//  ATTACHMENTS v2 — Google Drive Direct
+//  المجلد الرئيسي: مرفقات الطلبات - وهج الماسة
+// ════════════════════════════════════════════════════════
+const DRIVE_ROOT_ID  = '1dKWxjRQl5NnRJYxAc8uUVy4mmdORAWmu';
+const DRIVE_ROOT_URL = 'https://drive.google.com/drive/folders/1dKWxjRQl5NnRJYxAc8uUVy4mmdORAWmu';
+const ATT_API_URL    = DEFAULT_API_URL;  // نفس Apps Script الحالي
+
+// خريطة PO → folder ID (تُبنى تدريجياً عند أول فتح لكل طلب)
+const _folderCache = {};
+let   _currentAttPO  = '';
+let   _currentAttCat = 'فاتورة';
+let   _pendingFile   = null;
+
+const ATT_CATS = ['فاتورة','بوليصة شحن','سويفت','بيان جمركي','عقد','أخرى'];
+
+function attIcon(mime) {
+  if (!mime) return '📎';
+  if (mime.includes('pdf'))   return '📄';
+  if (mime.includes('image')) return '🖼️';
+  if (mime.includes('sheet') || mime.includes('excel') || mime.includes('csv')) return '📊';
+  if (mime.includes('word')) return '📝';
+  return '📎';
+}
+
+function fmtBytes(b) {
+  if (!b) return '';
+  if (b < 1024)    return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// ── رابط مجلد الطلب في Drive ──
+function poFolderUrl(po) {
+  const cached = _folderCache[po];
+  if (cached) return 'https://drive.google.com/drive/folders/' + cached;
+  // رابط بحث داخل المجلد الرئيسي بالاسم
+  return 'https://drive.google.com/drive/folders/' + DRIVE_ROOT_ID + '?q=' + encodeURIComponent(po);
+}
+
+// ── رفع ملف عبر Apps Script ──
+async function attUpload(po) {
+  if (!_pendingFile) return;
+  const btn  = document.getElementById('att-upbtn-' + po);
+  const prog = document.getElementById('att-prog-' + po);
+  const bar  = document.getElementById('att-bar-'  + po);
+  const msg  = document.getElementById('att-msg-'  + po);
+
+  btn.disabled = true;
+  prog.style.display = 'block';
+  bar.style.width = '15%';
+  msg.style.display = 'none';
+
+  try {
+    // قراءة الملف كـ Base64
+    const b64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload  = () => res(r.result.split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(_pendingFile);
+    });
+    bar.style.width = '45%';
+
+    const payload = {
+      action:   'upload',
+      po:       po.trim().toUpperCase(),
+      fileName: _pendingFile.name,
+      mimeType: _pendingFile.type || 'application/octet-stream',
+      data:     b64,
+      category: _currentAttCat,
+      rootFolderId: DRIVE_ROOT_ID
+    };
+
+    bar.style.width = '75%';
+
+    // إرسال إلى Apps Script — نستخدم CORS العادي لأن السكريبت يدعمه
+    const res  = await fetch(ATT_API_URL, {
+      method:  'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body:    JSON.stringify(payload)
+    });
+    bar.style.width = '95%';
+
+    let result;
+    try   { result = await res.json(); }
+    catch { result = { ok: true, fallback: true }; }  // no-cors fallback
+
+    bar.style.width = '100%';
+    setTimeout(() => { prog.style.display='none'; bar.style.width='0%'; }, 600);
+
+    if (result && result.ok === false) throw new Error(result.error || 'فشل الرفع');
+
+    msg.className = 'att-status-msg ok';
+    msg.textContent = '✓ تم رفع الملف: ' + _pendingFile.name;
+    msg.style.display = 'block';
+
+    // حفظ folder ID إن أُعيد من السكريبت
+    if (result && result.folderId) _folderCache[po] = result.folderId;
+
+    _pendingFile = null;
+    document.getElementById('att-file-inp-' + po).value = '';
+    document.getElementById('att-sel-' + po).style.display = 'none';
+    btn.disabled = true;
+
+    // إعادة تحميل القائمة
+    setTimeout(() => attLoadFiles(po), 1800);
+
+  } catch(err) {
+    bar.style.width = '0%';
+    prog.style.display = 'none';
+    msg.className = 'att-status-msg err';
+    msg.textContent = '✗ ' + (err.message || 'خطأ أثناء الرفع');
+    msg.style.display = 'block';
+    btn.disabled = !_pendingFile;
+  }
+}
+
+// ── تحميل قائمة ملفات الطلب من Apps Script ──
+async function attLoadFiles(po) {
+  const listEl = document.getElementById('att-list-' + po);
+  if (!listEl) return;
+  listEl.innerHTML = '<div style="text-align:center;padding:14px;color:#94A3B8;font-size:12px">⏳ جارٍ تحميل المرفقات<span class="att-spinner"></span></div>';
+
+  try {
+    const url  = ATT_API_URL + '?action=files&po=' + encodeURIComponent(po.trim().toUpperCase()) + '&rootId=' + DRIVE_ROOT_ID;
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (!data.ok) throw new Error(data.error || 'خطأ');
+
+    // حفظ folder ID
+    if (data.folderId) _folderCache[po] = data.folderId;
+
+    // تحديث رابط "فتح المجلد"
+    const folderLink = document.getElementById('att-folder-link-' + po);
+    if (folderLink && data.folderId) {
+      folderLink.href = 'https://drive.google.com/drive/folders/' + data.folderId;
+    }
+
+    if (!data.files || data.files.length === 0) {
+      listEl.innerHTML = `
+<div class="att-empty-state">
+  <div class="att-empty-icon">📂</div>
+  <div class="att-empty-txt">لا توجد مرفقات بعد — ارفع أول ملف أعلاه</div>
+</div>`;
+      return;
+    }
+
+    listEl.innerHTML = `
+<div class="att-file-list-hdr">
+  <span class="att-file-list-title">المرفقات (${data.files.length})</span>
+</div>` +
+    data.files.map(f => `
+<div class="att-file-item">
+  <div class="att-file-ico">${attIcon(f.mimeType)}</div>
+  <div class="att-file-info">
+    <div class="att-file-name" title="${f.name}">${f.name}</div>
+    <div class="att-file-meta">${f.size} · ${f.date}</div>
+  </div>
+  <div class="att-file-acts">
+    <a class="att-action-btn" href="${f.url}" target="_blank">👁 عرض</a>
+    <a class="att-action-btn" href="${f.downloadUrl}" download>⬇️</a>
+  </div>
+</div>`).join('');
+
+  } catch(e) {
+    // فشل الجلب من Apps Script — نعرض رابط Drive المباشر كبديل
+    listEl.innerHTML = `
+<div class="att-empty-state">
+  <div class="att-empty-icon">🔗</div>
+  <div class="att-empty-txt" style="color:#1E40AF">افتح المجلد في Drive لاستعراض المرفقات مباشرة</div>
+  <div style="margin-top:10px">
+    <a class="att-drive-btn" href="${poFolderUrl(po)}" target="_blank" style="display:inline-flex;font-size:12px;padding:6px 14px">
+      📂 فتح مجلد ${po} في Drive
+    </a>
+  </div>
+</div>`;
+  }
+}
+
+// ── اختيار ملف ──
+function attFileSelected(e, po) {
+  const file = e.target.files[0];
+  if (!file) return;
+  _pendingFile = file;
+  const sel = document.getElementById('att-sel-' + po);
+  sel.textContent = '📎 ' + file.name + '  (' + fmtBytes(file.size) + ')';
+  sel.style.display = 'block';
+  document.getElementById('att-upbtn-' + po).disabled = false;
+}
+
+function attDrop(e, po) {
+  e.preventDefault();
+  document.getElementById('att-dropzone-' + po).classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const fakeEvt = { target: { files: [file] } };
+  attFileSelected(fakeEvt, po);
+}
+
+function attSelectCat(el, cat, po) {
+  _currentAttCat = cat;
+  document.querySelectorAll('#att-cats-' + po + ' .att-cat').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── بناء قسم المرفقات ──
+function buildAttSection(po) {
+  _currentAttPO  = po;
+  _currentAttCat = ATT_CATS[0];
+  _pendingFile   = null;
+
+  const folderUrl = poFolderUrl(po);
+  const catsHtml  = ATT_CATS.map((c,i) =>
+    `<button class="att-cat${i===0?' sel':''}" onclick="attSelectCat(this,'${c}','${po}')">${c}</button>`
+  ).join('');
+
+  return `<div class="att-wrap">
+
+    <!-- بانر المجلد في Drive -->
+    <div class="att-drive-banner">
+      <div class="att-drive-icon">📁</div>
+      <div class="att-drive-info">
+        <div class="att-drive-title">مجلد الطلب ${po} في Google Drive</div>
+        <div class="att-drive-sub">كل المرفقات تُحفظ في مجلد خاص بهذا الطلب</div>
+      </div>
+      <div>
+        <a id="att-folder-link-${po}" class="att-drive-btn secondary" href="${folderUrl}" target="_blank">📂 فتح المجلد</a>
+      </div>
+    </div>
+
+    <!-- منطقة الرفع -->
+    <div id="att-dropzone-${po}" class="att-upload-box"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="attDrop(event,'${po}')">
+      <input type="file" id="att-file-inp-${po}"
+        accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc,.txt,.csv"
+        onchange="attFileSelected(event,'${po}')">
+      <div class="att-upload-icon">⬆️</div>
+      <div class="att-upload-txt">اسحب الملف هنا أو <strong>انقر للاختيار</strong></div>
+      <div class="att-upload-hint">PDF · صور · Excel · Word · حد أقصى 20MB</div>
+    </div>
+
+    <!-- الملف المختار -->
+    <div id="att-sel-${po}" style="display:none;background:#EEEDFE;color:#3C3489;border-radius:7px;padding:7px 12px;font-size:12px;margin-bottom:4px"></div>
+
+    <!-- تصنيف المرفق -->
+    <div class="att-cats" id="att-cats-${po}">${catsHtml}</div>
+
+    <!-- زر الرفع -->
+    <button class="att-up-btn" id="att-upbtn-${po}" onclick="attUpload('${po}')" disabled>
+      ⬆️ رفع المرفق
+    </button>
+
+    <!-- شريط التقدم -->
+    <div class="att-progress-wrap" id="att-prog-${po}">
+      <div class="att-progress-label"><span>جارٍ الرفع...</span></div>
+      <div class="att-progress-bar-bg"><div class="att-progress-bar-fill" id="att-bar-${po}"></div></div>
+    </div>
+
+    <!-- رسالة الحالة -->
+    <div class="att-status-msg" id="att-msg-${po}"></div>
+
+    <!-- الفاصل -->
+    <div class="att-divider">المرفقات الحالية</div>
+
+    <!-- قائمة الملفات -->
+    <div id="att-list-${po}">
+      <div style="text-align:center;padding:14px;color:#94A3B8;font-size:12px">
+        ⏳ جارٍ التحميل<span class="att-spinner"></span>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+let st;document.getElementById('sch').addEventListener('input',()=>{clearTimeout(st);st=setTimeout(filter,280);});
+</script>
+
+<!-- ── DETAIL MODAL ── -->
+<div id="modal-ov" class="modal-ov" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <div class="modal-hdr">
+      <div class="modal-title">
+        <span>📋 تفاصيل الطلب</span>
+        <span class="modal-po" id="m-po">—</span>
+      </div>
+      <button class="modal-close" onclick="closeModal()" title="إغلاق">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-close-modal" onclick="closeModal()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
