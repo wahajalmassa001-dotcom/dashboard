@@ -605,6 +605,19 @@ function parseShipDate(v) {
   if (!v) return '';
   const s = String(v).trim();
   if (!s || s === '0') return '';
+  // صيغة gviz الخام لخلايا التاريخ الحقيقية: Date(2026,6,7) — الشهر يبدأ من صفر في gviz
+  const gvd = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
+  if (gvd) {
+    const mm = String(+gvd[2] + 1).padStart(2, '0');
+    const dd = String(+gvd[3]).padStart(2, '0');
+    return dd + '/' + mm + '/' + gvd[1];
+  }
+  // صيغة بفواصل مائلة عكسية: dd\mm\yyyy (مستخدمة أحياناً في بعض الخلايا كنص)
+  const mbs = s.match(/^(\d{1,2})\\(\d{1,2})\\(\d{2,4})$/);
+  if (mbs) {
+    const y = mbs[3].length === 2 ? '20' + mbs[3] : mbs[3];
+    return mbs[1].padStart(2, '0') + '/' + mbs[2].padStart(2, '0') + '/' + y;
+  }
   // صيغة dd/MM/yyyy
   if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
   // صيغة M/d/yyyy (أمريكية)
