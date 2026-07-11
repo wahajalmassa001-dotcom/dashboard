@@ -651,14 +651,28 @@ function normPO(raw) {
   return '';
 }
 
+// جلب gviz عبر JSONP — المتصفح يمنع fetch() المباشر لهذا الرابط بسبب CORS
+// (docs.google.com/gviz/tq لا يرسل Access-Control-Allow-Origin لطلبات fetch عابرة للنطاق)
+// لذلك نستخدم وسم <script> بدل fetch — وهو ما يعمل دائماً بغض النظر عن CORS
+let _gvizJsonpSeq = 0;
+function gvizJSONP(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__gvizCb_' + (_gvizJsonpSeq++) + '_' + Date.now();
+    const script = document.createElement('script');
+    const cleanup = () => { delete window[cbName]; script.remove(); clearTimeout(timer); };
+    const timer = setTimeout(() => { cleanup(); reject(new Error('gviz JSONP timeout: ' + url)); }, 15000);
+    window[cbName] = (resp) => { cleanup(); resolve(resp); };
+    script.onerror = () => { cleanup(); reject(new Error('gviz JSONP load error: ' + url)); };
+    script.src = url + (url.includes('?') ? '&' : '?') + 'tqx=out:json;responseHandler:' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
 // جلب شيت واحد عبر gviz
 async function fetchShipTab(tabName) {
   const url = 'https://docs.google.com/spreadsheets/d/' + SHIP_GID
-    + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(tabName);
-  const res  = await fetch(url);
-  const text = await res.text();
-  const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
-  const resp  = JSON.parse(clean);
+    + '/gviz/tq?sheet=' + encodeURIComponent(tabName);
+  const resp = await gvizJSONP(url);
   const rows  = resp?.table?.rows || [];
   const cols  = resp?.table?.cols || [];
 
@@ -716,7 +730,9 @@ async function fetchShipTab(tabName) {
 // جلب كل الشيتات بالتوازي
 async function loadShipmentData() {
   try {
-    const results = await Promise.all(SHIP_TABS.map(t => fetchShipTab(t).catch(() => [])));
+    const results = await Promise.all(SHIP_TABS.map(t =>
+      fetchShipTab(t).catch(e => { console.warn('fetchShipTab failed for', t, ':', e.message); return []; })
+    ));
     const fresh   = results.flat();
     if (fresh.length === 0) return 0;
 
