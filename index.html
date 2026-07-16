@@ -605,38 +605,33 @@ function parseShipDate(v) {
   if (!v) return '';
   const s = String(v).trim();
   if (!s || s === '0') return '';
-  // صيغة gviz الخام لخلايا التاريخ الحقيقية: Date(2026,6,7) — الشهر يبدأ من صفر في gviz
-  const gvd = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
-  if (gvd) {
-    const mm = String(+gvd[2] + 1).padStart(2, '0');
-    const dd = String(+gvd[3]).padStart(2, '0');
-    return dd + '/' + mm + '/' + gvd[1];
+
+  // ── FIX 1: gviz Date object format "Date(yyyy,m,d)" — الشهر 0-indexed ──
+  const gviz = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);
+  if (gviz) {
+    const d = String(+gviz[3]).padStart(2,'0');
+    const m = String(+gviz[2]+1).padStart(2,'0'); // +1 لأن gviz يبدأ من 0
+    return d+'/'+m+'/'+gviz[1];
   }
-  // صيغة بفواصل مائلة عكسية: dd\mm\yyyy (مستخدمة أحياناً في بعض الخلايا كنص)
-  const mbs = s.match(/^(\d{1,2})\\(\d{1,2})\\(\d{2,4})$/);
-  if (mbs) {
-    const y = mbs[3].length === 2 ? '20' + mbs[3] : mbs[3];
-    return mbs[1].padStart(2, '0') + '/' + mbs[2].padStart(2, '0') + '/' + y;
-  }
-  // صيغة dd/MM/yyyy
+
+  // ── FIX 3: تفضيل القيمة المنسّقة .f عبر معالجة "Jul 8 2026" ──
+  const MO = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
+               'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'};
+  const mc = s.match(/^([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})$/);
+  if (mc) return mc[2].padStart(2,'0')+'/'+(MO[mc[1]]||'01')+'/'+mc[3];
+
+  // ── صيغة dd/MM/yyyy أو d/M/yyyy — إعادة كما هي (الصيغة الصحيحة) ──
   if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
-  // صيغة M/d/yyyy (أمريكية)
-  const ma = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (ma) return ma[2].padStart(2,'0')+'/'+ma[1].padStart(2,'0')+'/'+ma[3];
-  // صيغة d-M-yyyy أو d-MMM-yy
+
+  // ── صيغة d-M-yyyy أو d.M.yyyy ──
   const mb = s.match(/^(\d{1,2})[\-\.](\d{1,2})[\-\.](\d{2,4})$/);
   if (mb) {
     const y = mb[3].length===2 ? '20'+mb[3] : mb[3];
     return mb[1].padStart(2,'0')+'/'+mb[2].padStart(2,'0')+'/'+y;
   }
-  // نص مثل "May 11 2026" من gviz
-  const mc = s.match(/^([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})$/);
-  if (mc) {
-    const MO={'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
-               'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'};
-    return mc[2].padStart(2,'0')+'/'+(MO[mc[1]]||'01')+'/'+mc[3];
-  }
-  return s; // إعادة كنص كما هو (ملاحظات عربية إلخ)
+
+  // نص عربي أو غير معروف — إعادة كما هو
+  return s;
 }
 
 // استخراج رقم P.O نظيف
@@ -651,28 +646,14 @@ function normPO(raw) {
   return '';
 }
 
-// جلب gviz عبر JSONP — المتصفح يمنع fetch() المباشر لهذا الرابط بسبب CORS
-// (docs.google.com/gviz/tq لا يرسل Access-Control-Allow-Origin لطلبات fetch عابرة للنطاق)
-// لذلك نستخدم وسم <script> بدل fetch — وهو ما يعمل دائماً بغض النظر عن CORS
-let _gvizJsonpSeq = 0;
-function gvizJSONP(url) {
-  return new Promise((resolve, reject) => {
-    const cbName = '__gvizCb_' + (_gvizJsonpSeq++) + '_' + Date.now();
-    const script = document.createElement('script');
-    const cleanup = () => { delete window[cbName]; script.remove(); clearTimeout(timer); };
-    const timer = setTimeout(() => { cleanup(); reject(new Error('gviz JSONP timeout: ' + url)); }, 15000);
-    window[cbName] = (resp) => { cleanup(); resolve(resp); };
-    script.onerror = () => { cleanup(); reject(new Error('gviz JSONP load error: ' + url)); };
-    script.src = url + (url.includes('?') ? '&' : '?') + 'tqx=out:json;responseHandler:' + cbName;
-    document.head.appendChild(script);
-  });
-}
-
 // جلب شيت واحد عبر gviz
 async function fetchShipTab(tabName) {
   const url = 'https://docs.google.com/spreadsheets/d/' + SHIP_GID
-    + '/gviz/tq?sheet=' + encodeURIComponent(tabName);
-  const resp = await gvizJSONP(url);
+    + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(tabName);
+  const res  = await fetch(url);
+  const text = await res.text();
+  const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
+  const resp  = JSON.parse(clean);
   const rows  = resp?.table?.rows || [];
   const cols  = resp?.table?.cols || [];
 
@@ -695,7 +676,16 @@ async function fetchShipTab(tabName) {
   const records = [];
   for (const row of rows) {
     const c = row.c || [];
-    const gv = i => i >= 0 && i < c.length ? (c[i]?.v ?? c[i]?.f ?? '') : '';
+    // FIX: للتواريخ، .f تحتوي الصيغة المنسّقة (8/7/2026) وهي أموثق من .v (Date(2026,6,8))
+    const gv = i => {
+      if (i < 0 || i >= c.length) return '';
+      const cell = c[i];
+      if (!cell) return '';
+      // إذا .v يبدأ بـ Date( فهو كائن تاريخ → استخدم .v مباشرة (parseShipDate ستحوّله)
+      if (cell.v && String(cell.v).startsWith('Date(')) return cell.v;
+      // وإلا استخدم .f أولاً (الصيغة المنسّقة) ثم .v
+      return cell.f ?? cell.v ?? '';
+    };
     const gs = i => String(gv(i)||'').trim();
 
     const po = normPO(gs(ci.po));
@@ -704,7 +694,7 @@ async function fetchShipTab(tabName) {
     // تاريخ ATA — قد يكون تاريخاً حقيقياً أو نص ملاحظة
     const ataRaw = gs(ci.ataBgd);
     let ataBaghdad = '', extraNote = '';
-    if (/\d{2}\/\d{2}\/\d{4}/.test(parseShipDate(ataRaw))) {
+    if (/\d{1,2}\/\d{1,2}\/\d{4}/.test(parseShipDate(ataRaw))) {
       ataBaghdad = parseShipDate(ataRaw);
     } else if (ataRaw) {
       extraNote = ataRaw;
@@ -730,15 +720,27 @@ async function fetchShipTab(tabName) {
 // جلب كل الشيتات بالتوازي
 async function loadShipmentData() {
   try {
-    const results = await Promise.all(SHIP_TABS.map(t =>
-      fetchShipTab(t).catch(e => { console.warn('fetchShipTab failed for', t, ':', e.message); return []; })
-    ));
+    const results = await Promise.all(SHIP_TABS.map(t => fetchShipTab(t).catch(() => [])));
     const fresh   = results.flat();
     if (fresh.length === 0) return 0;
 
     fresh.forEach(s => {
       const key = (s.po||'').trim().toUpperCase();
-      if (key) SHIPMENT_MAP[key] = s;
+      if (!key) return;
+      const ex = SHIPMENT_MAP[key];
+      if (!ex) {
+        SHIPMENT_MAP[key] = s;
+      } else {
+        // دمج ذكي: الأولوية لأحدث بيانات — ATA بغداد تتقدم على الفارغ
+        const merged = Object.assign({}, ex, s);
+        // الحقول الفارغة لا تُلغي القديمة
+        if (!s.ataBaghdad  && ex.ataBaghdad)  merged.ataBaghdad  = ex.ataBaghdad;
+        if (!s.shipDate    && ex.shipDate)     merged.shipDate    = ex.shipDate;
+        if (!s.etaExpected && ex.etaExpected)  merged.etaExpected = ex.etaExpected;
+        if (!s.bl          && ex.bl)           merged.bl          = ex.bl;
+        if (!s.containerNo && ex.containerNo)  merged.containerNo = ex.containerNo;
+        SHIPMENT_MAP[key] = merged;
+      }
     });
 
     const upd = document.getElementById('ship-upd');
@@ -792,7 +794,10 @@ function shipmentStatus(po){
   if(!s) return 'na';
   const notes=(s.notes||'').toLowerCase();
   // إذا وصلت بغداد فعلياً (ATA معبأ بتاريخ صريح)
-  if(s.ataBaghdad && /\d/.test(s.ataBaghdad)) return 'arrived';
+  // FIX 4: التحقق من تاريخ حقيقي (ليس نصاً يحتوي أرقاماً عشوائية)
+  if(s.ataBaghdad && /\d{1,2}\/\d{1,2}\/\d{4}/.test(s.ataBaghdad)) return 'arrived';
+  // قبول صيغ تواريخ بديلة (d-M-yyyy إلخ) مع وجود أرقام
+  if(s.ataBaghdad && /^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/.test(s.ataBaghdad.trim())) return 'arrived';
   // إذا الملاحظات تذكر وصول ميناء وسيط (العقبة / خور فكان / الشارقة) دون وصول بغداد
   if(/وصلت|وصل/.test(notes) && /(عقبة|خور فكان|الشارقة|جبل علي)/.test(notes)) return 'atport';
   // إذا لا يوجد تاريخ شحن إطلاقاً ولا أي بيانات حركة = لم تُشحن
@@ -943,9 +948,9 @@ function mapRows(raw,sheetName){
     if(!row.some(c=>c))continue;
     const inv=g(row,ci.invoice),toCo=g(row,ci.to_co);
     const amt=parseFloat((g(row,ci.amount)).replace(/[^0-9.-]/g,''))||0;
-    // قبول أي صف يحتوي فاتورة أو مبلغ أو شركة مستفيدة
-    if(!inv&&!amt&&!toCo)continue;
+    if(!inv&&!amt)continue;
     if(inv.toLowerCase().includes('invoice no')||inv.toLowerCase().includes('no.'))continue;
+    if(!toCo&&!inv&&!amt)continue;
     const n1=g(row,ci.n1),n2=g(row,ci.n2);
     const notes=[n1,n2].filter(Boolean).join(' · ');
     const nl=notes.toLowerCase();
