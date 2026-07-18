@@ -689,14 +689,16 @@ function normalizeDate(v) {
   return s;
 }
 
-// استخراج رقم P.O نظيف
+// استخراج رقم P.O نظيف — يعالج أيضاً خطأ كتابة حرف O بدل الرقم 0
+// (مثال حقيقي في البيانات: "POO405" بدل "P00405") الذي كان يُنشئ سجلاً
+// منفصلاً لا يرتبط أبداً بالطلب الصحيح.
 function normPO(raw) {
   if (!raw) return '';
-  const s = String(raw).trim();
-  const m = s.match(/P0*(\d{3,})/i);
+  const s = String(raw).trim().toUpperCase().replace(/\s+/g,'');
+  const m = s.match(/^P[O0]*(\d{3,})$/);
   if (m) return 'P' + String(+m[1]).padStart(5,'0');
   if (/^\d{3,}\+\d{3,}$/.test(s)) return s; // مثل 447+446
-  const m2 = s.match(/^PO?(\d{3,})$/i);
+  const m2 = s.match(/P[O0]*(\d{3,})/);
   if (m2) return 'P' + String(+m2[1]).padStart(5,'0');
   return '';
 }
