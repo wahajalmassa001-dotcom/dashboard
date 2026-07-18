@@ -634,6 +634,61 @@ function parseShipDate(v) {
   return s;
 }
 
+// تطبيع أي صيغة تاريخ إلى dd/mm/yyyy — يغطي حالات لم يكن يغطيها parseShipDate
+// (تنسيق ISO، تنسيق JS Date.toString الكامل، الأرقام التسلسلية لإكسل، إلخ)
+function normalizeDate(v) {
+  if (v === null || v === undefined) return '';
+  const s = String(v).trim();
+  if (!s || s === '0') return '';
+
+  // كائن تاريخ gviz: Date(2026,3,28)
+  const gviz = s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
+  if (gviz) {
+    const d = String(+gviz[3]).padStart(2,'0');
+    const m = String(+gviz[2]+1).padStart(2,'0');
+    return d+'/'+m+'/'+gviz[1];
+  }
+
+  const MO3 = {Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+
+  // مخرجات JS Date.toString(): "Sat Apr 28 2026 00:00:00 GMT+0000 (UTC)"
+  const m1 = s.match(/^[A-Za-z]{3}\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
+  if (m1) return m1[2].padStart(2,'0')+'/'+(MO3[m1[1]]||'01')+'/'+m1[3];
+
+  // "Apr 28, 2026" أو "28 Apr 2026"
+  const m2 = s.match(/^([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})$/);
+  if (m2) return m2[2].padStart(2,'0')+'/'+(MO3[m2[1]]||'01')+'/'+m2[3];
+  const m3 = s.match(/^(\d{1,2})\s+([A-Za-z]{3})\w*\s+(\d{4})$/);
+  if (m3) return m3[1].padStart(2,'0')+'/'+(MO3[m3[2].slice(0,3)]||'01')+'/'+m3[3];
+
+  // ISO: 2026-04-28 أو 2026-04-28T00:00:00.000Z
+  const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (iso) return iso[3].padStart(2,'0')+'/'+iso[2].padStart(2,'0')+'/'+iso[1];
+
+  // dd/mm/yyyy صحيحة أصلاً
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
+
+  // dd-mm-yyyy أو dd.mm.yyyy
+  const m4 = s.match(/^(\d{1,2})[\-\.](\d{1,2})[\-\.](\d{2,4})$/);
+  if (m4) {
+    const y = m4[3].length===2 ? '20'+m4[3] : m4[3];
+    return m4[1].padStart(2,'0')+'/'+m4[2].padStart(2,'0')+'/'+y;
+  }
+
+  // رقم تسلسلي (Excel serial date) — أحياناً يصل هكذا من Apps Script عند قراءة raw values
+  if (/^\d{4,6}(\.\d+)?$/.test(s)) {
+    const n = parseFloat(s);
+    if (n > 20000 && n < 60000) {
+      const epoch = new Date(Date.UTC(1899,11,30));
+      const dt = new Date(epoch.getTime() + n*86400000);
+      return String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'/'+dt.getUTCFullYear();
+    }
+  }
+
+  // صيغة غير معروفة — أعدها كما هي بدل إخفائها
+  return s;
+}
+
 // استخراج رقم P.O نظيف
 function normPO(raw) {
   if (!raw) return '';
@@ -960,7 +1015,7 @@ function mapRows(raw,sheetName){
     else if(notes&&!nl.includes('direct'))nt='other';
     rows.push({
       _sheet:sheetName,no:g(row,ci.no)||String(ctr),
-      invoice:inv,po:g(row,ci.po).trim(),date:g(row,ci.date),swift:g(row,ci.swift),
+      invoice:inv,po:g(row,ci.po).trim(),date:normalizeDate(g(row,ci.date)),swift:normalizeDate(g(row,ci.swift))||g(row,ci.swift),
       amount:amt,amt_d:amt?'$'+amt.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}):'—',
       from_co:g(row,ci.from_co)||'WAHAJ ALMASA CO',
       to_co:toCo,to_co_norm:normCo(toCo),
