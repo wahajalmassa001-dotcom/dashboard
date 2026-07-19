@@ -547,16 +547,18 @@ function rowToShipRecord(cells, sheetName) {
 // ═══ جلب بيانات الشحن — رابط Apps Script الخاص بملف الشحنات ═══
 const SHIP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyPv6oTep3gSEJcz1b42J4_F5eF_41qMtp-19LsoKnO9sk1oB3kVq0O-fL3oYAJ8-ZxQ/exec';
 
-async function loadShipmentData() {
+// يجلب من رابط Apps Script المخصص للشحنات — كان معرَّفاً باسم loadShipmentData
+// واختفى بالكامل لأن تعريفاً ثانياً بنفس الاسم كان يُلغيه في جافاسكربت (لم يعمل هذا المصدر إطلاقاً)
+async function loadShipmentDataAppsScript() {
   try {
     const res  = await fetch(SHIP_SCRIPT_URL + '?action=shipment');
     const data = await res.json();
     if (!data.ok || !data.records || !data.records.length) {
-      console.warn('Shipment:', data.error || 'empty');
+      console.warn('Shipment (AppsScript):', data.error || 'empty');
       return 0;
     }
     data.records.forEach(s => {
-      const key = (s.po || '').trim().toUpperCase();
+      const key = normPO(s.po) || (s.po || '').trim().toUpperCase();
       if (!key) return;
       const ex = SHIPMENT_MAP[key];
       if (ex) {
@@ -571,19 +573,12 @@ async function loadShipmentData() {
         if (s.notes)        ex.notes        = s.notes;
         if (s.line)         ex.line         = s.line;
       } else {
-        SHIPMENT_MAP[key] = s;
+        SHIPMENT_MAP[key] = {...s, po:key};
       }
     });
-    const el = document.getElementById('ship-upd');
-    if (el) {
-      el.textContent = '⚓ ' + data.records.length + ' شحنة — '
-        + new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
-      el.style.display = 'inline';
-    }
-    renderPage(); // إعادة الرسم لإظهار الحاويات والمواعيد المحدّثة
     return data.records.length;
   } catch(e) {
-    console.warn('loadShipmentData failed:', e.message);
+    console.warn('loadShipmentDataAppsScript failed:', e.message);
     return 0;
   }
 }
@@ -774,8 +769,8 @@ async function fetchShipTab(tabName) {
   return records;
 }
 
-// جلب كل الشيتات بالتوازي
-async function loadShipmentData() {
+// جلب كل الشيتات بالتوازي (عبر gviz)
+async function loadShipmentDataGviz() {
   try {
     const results = await Promise.all(SHIP_TABS.map(t => fetchShipTab(t).catch(() => [])));
     const fresh   = results.flat();
@@ -794,23 +789,50 @@ async function loadShipmentData() {
         if (!s.ataBaghdad  && ex.ataBaghdad)  merged.ataBaghdad  = ex.ataBaghdad;
         if (!s.shipDate    && ex.shipDate)     merged.shipDate    = ex.shipDate;
         if (!s.etaExpected && ex.etaExpected)  merged.etaExpected = ex.etaExpected;
+        if (!s.etaUmQasr   && ex.etaUmQasr)    merged.etaUmQasr   = ex.etaUmQasr;
         if (!s.bl          && ex.bl)           merged.bl          = ex.bl;
         if (!s.containerNo && ex.containerNo)  merged.containerNo = ex.containerNo;
+        if (!s.containerCount && ex.containerCount) merged.containerCount = ex.containerCount;
+        if (!s.line        && ex.line)         merged.line        = ex.line;
+        if (!s.notes       && ex.notes)        merged.notes       = ex.notes;
         SHIPMENT_MAP[key] = merged;
       }
     });
-
-    const upd = document.getElementById('ship-upd');
-    if (upd) {
-      upd.textContent = '⚓ ' + fresh.length + ' شحنة — '
-        + new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
-      upd.style.display = 'inline';
-    }
     return fresh.length;
   } catch(e) {
-    console.warn('loadShipmentData failed:', e.message);
+    console.warn('loadShipmentDataGviz failed:', e.message);
     return 0;
   }
+}
+
+// ══════════════════════════════════════════
+//  المنسّق الموحّد لبيانات الشحن — الحل الجذري:
+//  سابقاً، كل استدعاء لـ processData() كان يصفّر SHIPMENT_MAP ويعيد بناءه من
+//  لقطة SHIPMENT_DATA الجامدة القديمة (عبر buildShipmentMap())، وبشكل منفصل
+//  وغير متزامن كانت هناك محاولة جلب حي واحدة فقط — وإن فشلت أو تأخرت، يبقى
+//  المستخدم عالقاً على البيانات القديمة دون أي تنبيه. كذلك، مصدر حي كامل
+//  (Apps Script) كان معطّلاً تماماً بسبب تعريف دالة مكرر يُلغيه.
+//  هذه الدالة تُشغّل كل المصادر الحية بالتوازي في كل مرة، وتدمج نتائجها،
+//  فلا تُفقد بيانات حية أبداً بسبب التحديث الدوري.
+// ══════════════════════════════════════════
+async function refreshShipmentData(){
+  const [nGviz, nApps] = await Promise.all([
+    loadShipmentDataGviz().catch(()=>0),
+    loadShipmentDataAppsScript().catch(()=>0),
+  ]);
+  const total = nGviz + nApps;
+  const el = document.getElementById('ship-upd');
+  if (el) {
+    if (total > 0) {
+      el.textContent = '⚓ بيانات شحن حية — ' + new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
+      el.style.display = 'inline';
+    } else {
+      el.textContent = '⚠️ تعذّر جلب بيانات الشحن الحية — المعروض احتياطي وقد لا يعكس آخر تحديث';
+      el.style.display = 'inline';
+    }
+  }
+  if (total > 0) renderPage();
+  return total;
 }
 
 
@@ -829,15 +851,17 @@ function getCountDisplay(po) {
 }
 
 function buildShipmentMap(){
-  SHIPMENT_MAP={};
+  // لا نُصفّر SHIPMENT_MAP هنا أبداً — أي بيانات حية موجودة (من refreshShipmentData)
+  // يجب أن تبقى كما هي. هذه الدالة تُستخدم فقط لملء الفجوات من اللقطة الاحتياطية
+  // الجامدة عند غياب بيانات حية لنفس الطلب، وليس لاستبدال بيانات حية بأخرى قديمة.
   SHIPMENT_DATA.forEach(s=>{
-    const key=String(s.po).trim().toUpperCase();
+    const key=normPO(s.po)||String(s.po).trim().toUpperCase();
     if(!key)return;
-    // keep the most complete record if duplicate PO (last one wins, or merge ATA priority)
-    if(!SHIPMENT_MAP[key]) SHIPMENT_MAP[key]=s;
-    else {
-      // prefer record that has ataBaghdad filled
-      if(!SHIPMENT_MAP[key].ataBaghdad && s.ataBaghdad) SHIPMENT_MAP[key]=s;
+    if(!SHIPMENT_MAP[key]){
+      SHIPMENT_MAP[key]={...s, po:key};
+    } else {
+      const ex=SHIPMENT_MAP[key];
+      Object.keys(s).forEach(k=>{ if(!ex[k] && s[k]) ex[k]=s[k]; });
     }
   });
 }
@@ -959,13 +983,14 @@ async function loadData(apiUrl){
     const json=await res.json();
     processData(json);
     document.getElementById('upd').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
-    // ── جلب بيانات الشحن الحية بالتوازي (لا يؤثر على سرعة ظهور الحوالات) ──
-    loadShipmentData().then(n => { if(n>0) renderPage(); });
+    // ── جلب بيانات الشحن الحية من كل المصادر بالتوازي (لا يؤثر على سرعة ظهور الحوالات) ──
+    refreshShipmentData();
   }catch(e){
     showErr('⚠️ تعذّر الاتصال بمصدر البيانات الحي: '+e.message+' — سيتم عرض آخر نسخة محفوظة كاحتياط.');
     if(EMBEDDED_DATA&&EMBEDDED_DATA.ok){
       processData(EMBEDDED_DATA);
       document.getElementById('upd').textContent='⚠️ بيانات احتياطية (غير محدّثة) · '+new Date().toLocaleDateString('ar');
+      refreshShipmentData();
     } else {
       showTbl('<div class="stb"><div class="ic">⚠️</div><div class="tx">تعذّر جلب البيانات</div></div>');
     }
