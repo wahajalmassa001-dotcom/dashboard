@@ -76,10 +76,10 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);font-si
 .stats{padding:18px 28px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
 .sc{background:var(--sur);border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--bdr);position:relative;overflow:hidden}
 .sc::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%}
-.sc.g1::before{background:var(--gold)}.sc.g2::before{background:var(--green)}.sc.g3::before{background:var(--teal)}.sc.g4::before{background:var(--blue)}.sc.g5::before{background:var(--red)}.sc.g6::before{background:var(--orange)}.sc.g7::before{background:#F59E0B;box-shadow:0 0 8px 1px rgba(245,158,11,.5)}
+.sc.g1::before{background:var(--gold)}.sc.g2::before{background:var(--green)}.sc.g3::before{background:var(--teal)}.sc.g4::before{background:var(--blue)}.sc.g5::before{background:var(--red)}.sc.g6::before{background:var(--orange)}.sc.g7::before{background:#F59E0B;box-shadow:0 0 8px 1px rgba(245,158,11,.5)}.sc.g8::before{background:#8B5CF6}
 .sc-l{font-size:10.5px;color:var(--ht);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .sc-v{font-size:22px;font-weight:800;line-height:1}
-.sc.g1 .sc-v{color:var(--gold-d)}.sc.g2 .sc-v{color:var(--green)}.sc.g3 .sc-v{color:var(--teal)}.sc.g4 .sc-v{color:var(--blue)}.sc.g5 .sc-v{color:var(--red)}.sc.g6 .sc-v{color:var(--orange)}.sc.g7 .sc-v{color:#B45309}
+.sc.g1 .sc-v{color:var(--gold-d)}.sc.g2 .sc-v{color:var(--green)}.sc.g3 .sc-v{color:var(--teal)}.sc.g4 .sc-v{color:var(--blue)}.sc.g5 .sc-v{color:var(--red)}.sc.g6 .sc-v{color:var(--orange)}.sc.g7 .sc-v{color:#B45309}.sc.g8 .sc-v{color:#8B5CF6}
 .sc-s{font-size:11px;color:var(--ht);margin-top:4px}
 
 /* CONTROLS */
@@ -351,6 +351,10 @@ tr.row-pending:hover td{background:#FFF6D6!important}
     <div class="sc g5"><div class="sc-l">مرفوضة / ملغاة</div><div class="sc-v" id="s5">—</div></div>
     <div class="sc g6"><div class="sc-l">دفعات مجزأة</div><div class="sc-v" id="s6">—</div></div>
     <div class="sc g7" style="position:relative"><div class="sc-l">🟡 قيد التدقيق / محجوزة</div><div class="sc-v" id="s7">—</div></div>
+    <div class="sc g8" style="position:relative" title="عدد الطلبات (P.O) التي عُثر لها على سجل مطابق في بيانات واجهة تتبع الشحنات">
+      <div class="sc-l">🔗 مستوردة من الشحن</div><div class="sc-v" id="s8">—</div>
+      <div class="sc-s" id="s8b"></div>
+    </div>
   </div>
 
   <div id="err-a"></div>
@@ -553,11 +557,58 @@ async function loadShipmentDataAppsScript() {
   try {
     const res  = await fetch(SHIP_SCRIPT_URL + '?action=shipment');
     const data = await res.json();
-    if (!data.ok || !data.records || !data.records.length) {
-      console.warn('Shipment (AppsScript):', data.error || 'empty');
-      return 0;
+    if (!data || !data.ok) { console.warn('Shipment (AppsScript):', (data&&data.error)||'no data'); return 0; }
+
+    // ✅ إصلاح: الاستجابة الفعلية من الكود الحالي لا تحوي "records" إطلاقاً،
+    // بل "tabs" (CSV خام لكل شهر). كانت الدالة تتحقق من data.records فقط،
+    // فتُرجع صفراً دائماً بصمت مهما كانت حالة الاتصال — هذا المصدر لم يعمل قط.
+    // الآن: نقبل الشكلين، ونحلّل tabs بمطابقة أسماء الأعمدة (مرن وليس بمواضع ثابتة).
+    let recs = [];
+    if (Array.isArray(data.records) && data.records.length) {
+      recs = data.records;
+    } else if (Array.isArray(data.tabs) && data.tabs.length) {
+      data.tabs.forEach(t => {
+        const rows = parseCSV(t.csv);
+        if (rows.length < 2) return;
+        const hdr = rows[0].map(h => String(h).trim());
+        const find = (...labels) => {
+          for (const lbl of labels) {
+            let i = hdr.findIndex(h => h === lbl);
+            if (i >= 0) return i;
+            i = hdr.findIndex(h => h.includes(lbl));
+            if (i >= 0) return i;
+          }
+          return -1;
+        };
+        const ci = {
+          po:           find('اودو', 'P.O  ( odoo )', 'P.O (odoo)', 'odoo'),
+          containerNo:  find('رقم الحاوية'),
+          containerCnt: find('عدد الحاويات'),
+          line:         find('أسم الخط', 'اسم الخط'),
+          shipDate:     find('تاريخ الشحن'),
+          etaExpected:  find('تاريخ الوصول المفترض'),
+          etaUmQasr:    find('أم قصر', 'ام قصر'),
+          ataBaghdad:   find('بغداد'),
+          bl:           find('BL'),
+          notes:        find('ملاحظة'),
+        };
+        if (ci.po < 0) return; // لا عمود PO في هذا الشهر تحديداً — تخطّي بأمان دون كسر البقية
+        const g = (row, i) => (i >= 0 && i < row.length) ? String(row[i] || '').trim() : '';
+        rows.slice(1).forEach(row => {
+          const po = g(row, ci.po);
+          if (!po || po.length < 2) return;
+          recs.push({
+            po, containerNo: g(row, ci.containerNo), containerCount: g(row, ci.containerCnt),
+            line: g(row, ci.line), shipDate: g(row, ci.shipDate), etaExpected: g(row, ci.etaExpected),
+            etaUmQasr: g(row, ci.etaUmQasr), ataBaghdad: g(row, ci.ataBaghdad), bl: g(row, ci.bl),
+            notes: g(row, ci.notes)
+          });
+        });
+      });
     }
-    data.records.forEach(s => {
+    if (!recs.length) { console.warn('Shipment (AppsScript): فارغ بعد التحليل'); return 0; }
+
+    recs.forEach(s => {
       const key = normPO(s.po) || (s.po || '').trim().toUpperCase();
       if (!key) return;
       const ex = SHIPMENT_MAP[key];
@@ -576,7 +627,7 @@ async function loadShipmentDataAppsScript() {
         SHIPMENT_MAP[key] = {...s, po:key};
       }
     });
-    return data.records.length;
+    return recs.length;
   } catch(e) {
     console.warn('loadShipmentDataAppsScript failed:', e.message);
     return 0;
@@ -1179,6 +1230,17 @@ function updateStats(){
   document.getElementById('s6').textContent=grpd;
   const s7=document.getElementById('s7');
   if(s7)s7.textContent=pend;
+
+  // 🔗 عدد الطلبات (P.O) الفريدة ضمن النتائج الحالية التي عُثر لها على سجل
+  // مطابق فعلياً في SHIPMENT_MAP (أي: بياناتها مستوردة بنجاح من واجهة تتبع الشحنات)
+  const posInView = new Set(fltRows.map(r=>r.po).filter(Boolean));
+  let linked=0;
+  posInView.forEach(po=>{ if(getShipmentInfo(po)) linked++; });
+  const s8=document.getElementById('s8'), s8b=document.getElementById('s8b');
+  if(s8){
+    s8.textContent=linked;
+    if(s8b) s8b.textContent = posInView.size ? `من ${posInView.size} طلب` : '';
+  }
 }
 
 // ── TOGGLE GROUP HIGHLIGHT ──
