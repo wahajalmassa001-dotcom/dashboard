@@ -76,10 +76,10 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--tx);font-si
 .stats{padding:18px 28px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
 .sc{background:var(--sur);border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--bdr);position:relative;overflow:hidden}
 .sc::before{content:'';position:absolute;top:0;right:0;width:4px;height:100%}
-.sc.g1::before{background:var(--gold)}.sc.g2::before{background:var(--green)}.sc.g3::before{background:var(--teal)}.sc.g4::before{background:var(--blue)}.sc.g5::before{background:var(--red)}.sc.g6::before{background:var(--orange)}.sc.g7::before{background:#F59E0B;box-shadow:0 0 8px 1px rgba(245,158,11,.5)}
+.sc.g1::before{background:var(--gold)}.sc.g2::before{background:var(--green)}.sc.g3::before{background:var(--teal)}.sc.g4::before{background:var(--blue)}.sc.g5::before{background:var(--red)}.sc.g6::before{background:var(--orange)}.sc.g7::before{background:#F59E0B;box-shadow:0 0 8px 1px rgba(245,158,11,.5)}.sc.g8::before{background:#8B5CF6}
 .sc-l{font-size:10.5px;color:var(--ht);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .sc-v{font-size:22px;font-weight:800;line-height:1}
-.sc.g1 .sc-v{color:var(--gold-d)}.sc.g2 .sc-v{color:var(--green)}.sc.g3 .sc-v{color:var(--teal)}.sc.g4 .sc-v{color:var(--blue)}.sc.g5 .sc-v{color:var(--red)}.sc.g6 .sc-v{color:var(--orange)}.sc.g7 .sc-v{color:#B45309}
+.sc.g1 .sc-v{color:var(--gold-d)}.sc.g2 .sc-v{color:var(--green)}.sc.g3 .sc-v{color:var(--teal)}.sc.g4 .sc-v{color:var(--blue)}.sc.g5 .sc-v{color:var(--red)}.sc.g6 .sc-v{color:var(--orange)}.sc.g7 .sc-v{color:#B45309}.sc.g8 .sc-v{color:#8B5CF6}
 .sc-s{font-size:11px;color:var(--ht);margin-top:4px}
 
 /* CONTROLS */
@@ -351,6 +351,10 @@ tr.row-pending:hover td{background:#FFF6D6!important}
     <div class="sc g5"><div class="sc-l">مرفوضة / ملغاة</div><div class="sc-v" id="s5">—</div></div>
     <div class="sc g6"><div class="sc-l">دفعات مجزأة</div><div class="sc-v" id="s6">—</div></div>
     <div class="sc g7" style="position:relative"><div class="sc-l">🟡 قيد التدقيق / محجوزة</div><div class="sc-v" id="s7">—</div></div>
+    <div class="sc g8" style="position:relative" title="عدد الطلبات (P.O) التي عُثر لها على سجل مطابق في بيانات واجهة تتبع الشحنات">
+      <div class="sc-l">🔗 مستوردة من الشحن</div><div class="sc-v" id="s8">—</div>
+      <div class="sc-s" id="s8b"></div>
+    </div>
   </div>
 
   <div id="err-a"></div>
@@ -547,51 +551,83 @@ function rowToShipRecord(cells, sheetName) {
 // ═══ جلب بيانات الشحن — رابط Apps Script الخاص بملف الشحنات ═══
 const SHIP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyPv6oTep3gSEJcz1b42J4_F5eF_41qMtp-19LsoKnO9sk1oB3kVq0O-fL3oYAJ8-ZxQ/exec';
 
-// يجلب من SHIP_SCRIPT_URL — تبيّن أن هذا الرابط فعلياً هو سكربت الشحنات المدمج
-// (buildMergedData) الذي يُرجع مصفوفة خام جاهزة بحقول snake_case
-// (po, ship_date, eta_umqasr, ata_baghdad, containers_no...) وليس الشكل
-// {ok:true, records:[...]} الذي كانت الدالة تتوقعه سابقاً — وهذا ما كان يجعلها
-// تفشل بصمت دائماً (data.ok غير معرّف على مصفوفة خام). البيانات هنا فعلياً
-// أغنى (شحنة + حوالات مدمجة معاً من نفس السكربت المُصلَح).
+// يجلب من رابط Apps Script المخصص للشحنات — كان معرَّفاً باسم loadShipmentData
+// واختفى بالكامل لأن تعريفاً ثانياً بنفس الاسم كان يُلغيه في جافاسكربت (لم يعمل هذا المصدر إطلاقاً)
 async function loadShipmentDataAppsScript() {
   try {
-    const res  = await fetch(SHIP_SCRIPT_URL);
+    const res  = await fetch(SHIP_SCRIPT_URL + '?action=shipment');
     const data = await res.json();
-    if (!Array.isArray(data) || !data.length) {
-      console.warn('Shipment (AppsScript):', (data && data.error) || 'empty/unexpected shape');
-      return 0;
+    if (!data || !data.ok) { console.warn('Shipment (AppsScript):', (data&&data.error)||'no data'); return 0; }
+
+    // ✅ إصلاح: الاستجابة الفعلية من الكود الحالي لا تحوي "records" إطلاقاً،
+    // بل "tabs" (CSV خام لكل شهر). كانت الدالة تتحقق من data.records فقط،
+    // فتُرجع صفراً دائماً بصمت مهما كانت حالة الاتصال — هذا المصدر لم يعمل قط.
+    // الآن: نقبل الشكلين، ونحلّل tabs بمطابقة أسماء الأعمدة (مرن وليس بمواضع ثابتة).
+    let recs = [];
+    if (Array.isArray(data.records) && data.records.length) {
+      recs = data.records;
+    } else if (Array.isArray(data.tabs) && data.tabs.length) {
+      data.tabs.forEach(t => {
+        const rows = parseCSV(t.csv);
+        if (rows.length < 2) return;
+        const hdr = rows[0].map(h => String(h).trim());
+        const find = (...labels) => {
+          for (const lbl of labels) {
+            let i = hdr.findIndex(h => h === lbl);
+            if (i >= 0) return i;
+            i = hdr.findIndex(h => h.includes(lbl));
+            if (i >= 0) return i;
+          }
+          return -1;
+        };
+        const ci = {
+          po:           find('اودو', 'P.O  ( odoo )', 'P.O (odoo)', 'odoo'),
+          containerNo:  find('رقم الحاوية'),
+          containerCnt: find('عدد الحاويات'),
+          line:         find('أسم الخط', 'اسم الخط'),
+          shipDate:     find('تاريخ الشحن'),
+          etaExpected:  find('تاريخ الوصول المفترض'),
+          etaUmQasr:    find('أم قصر', 'ام قصر'),
+          ataBaghdad:   find('بغداد'),
+          bl:           find('BL'),
+          notes:        find('ملاحظة'),
+        };
+        if (ci.po < 0) return; // لا عمود PO في هذا الشهر تحديداً — تخطّي بأمان دون كسر البقية
+        const g = (row, i) => (i >= 0 && i < row.length) ? String(row[i] || '').trim() : '';
+        rows.slice(1).forEach(row => {
+          const po = g(row, ci.po);
+          if (!po || po.length < 2) return;
+          recs.push({
+            po, containerNo: g(row, ci.containerNo), containerCount: g(row, ci.containerCnt),
+            line: g(row, ci.line), shipDate: g(row, ci.shipDate), etaExpected: g(row, ci.etaExpected),
+            etaUmQasr: g(row, ci.etaUmQasr), ataBaghdad: g(row, ci.ataBaghdad), bl: g(row, ci.bl),
+            notes: g(row, ci.notes)
+          });
+        });
+      });
     }
-    data.forEach(s => {
+    if (!recs.length) { console.warn('Shipment (AppsScript): فارغ بعد التحليل'); return 0; }
+
+    recs.forEach(s => {
       const key = normPO(s.po) || (s.po || '').trim().toUpperCase();
       if (!key) return;
-      const mapped = {
-        po:             key,
-        shipDate:       s.ship_date      || '',
-        etaExpected:    s.eta_expected   || '',
-        etaUmQasr:      s.eta_umqasr     || '',
-        ataBaghdad:     s.ata_baghdad    || '',
-        bl:             s.bl             || '',
-        containerNo:    s.containers_no  || '',
-        containerCount: s.containers_count || '',
-        line:           s.line           || '',
-        notes:          s.notes          || '',
-      };
       const ex = SHIPMENT_MAP[key];
       if (ex) {
-        if (mapped.ataBaghdad)     ex.ataBaghdad     = mapped.ataBaghdad;
-        if (mapped.etaUmQasr)      ex.etaUmQasr      = mapped.etaUmQasr;
-        if (mapped.etaExpected)    ex.etaExpected    = mapped.etaExpected;
-        if (mapped.containerNo)    ex.containerNo    = mapped.containerNo;
-        if (mapped.containerCount) ex.containerCount = mapped.containerCount;
-        if (mapped.bl)             ex.bl             = mapped.bl;
-        if (mapped.shipDate)       ex.shipDate       = mapped.shipDate;
-        if (mapped.notes)          ex.notes          = mapped.notes;
-        if (mapped.line)           ex.line           = mapped.line;
+        // تحديث الحقول الحيوية فقط بالبيانات الجديدة (الأحدث تطغى على القديمة)
+        if (s.ataBaghdad)   ex.ataBaghdad   = s.ataBaghdad;
+        if (s.etaUmQasr)    ex.etaUmQasr    = s.etaUmQasr;
+        if (s.etaExpected)  ex.etaExpected  = s.etaExpected;
+        if (s.containerNo)  ex.containerNo  = s.containerNo;
+        if (s.containerCount) ex.containerCount = s.containerCount;
+        if (s.bl)           ex.bl           = s.bl;
+        if (s.shipDate)     ex.shipDate     = s.shipDate;
+        if (s.notes)        ex.notes        = s.notes;
+        if (s.line)         ex.line         = s.line;
       } else {
-        SHIPMENT_MAP[key] = mapped;
+        SHIPMENT_MAP[key] = {...s, po:key};
       }
     });
-    return data.length;
+    return recs.length;
   } catch(e) {
     console.warn('loadShipmentDataAppsScript failed:', e.message);
     return 0;
@@ -894,6 +930,8 @@ function shipmentStatus(po){
   if(s.ataBaghdad && /\d{1,2}\/\d{1,2}\/\d{4}/.test(s.ataBaghdad)) return 'arrived';
   // قبول صيغ تواريخ بديلة (d-M-yyyy إلخ) مع وجود أرقام
   if(s.ataBaghdad && /^\d{1,2}[\/-]\d{1,2}[\/-]\d{4}$/.test(s.ataBaghdad.trim())) return 'arrived';
+  // FIX 5: قبول صيغة ISO (yyyy-mm-dd) — التي يُرجعها الآن سكربت الشحنات المُصلَح
+  if(s.ataBaghdad && /^\d{4}-\d{1,2}-\d{1,2}$/.test(s.ataBaghdad.trim())) return 'arrived';
   // إذا الملاحظات تذكر وصول ميناء وسيط (العقبة / خور فكان / الشارقة) دون وصول بغداد
   if(/وصلت|وصل/.test(notes) && /(عقبة|خور فكان|الشارقة|جبل علي)/.test(notes)) return 'atport';
   // إذا لا يوجد تاريخ شحن إطلاقاً ولا أي بيانات حركة = لم تُشحن
@@ -1194,6 +1232,17 @@ function updateStats(){
   document.getElementById('s6').textContent=grpd;
   const s7=document.getElementById('s7');
   if(s7)s7.textContent=pend;
+
+  // 🔗 عدد الطلبات (P.O) الفريدة ضمن النتائج الحالية التي عُثر لها على سجل
+  // مطابق فعلياً في SHIPMENT_MAP (أي: بياناتها مستوردة بنجاح من واجهة تتبع الشحنات)
+  const posInView = new Set(fltRows.map(r=>r.po).filter(Boolean));
+  let linked=0;
+  posInView.forEach(po=>{ if(getShipmentInfo(po)) linked++; });
+  const s8=document.getElementById('s8'), s8b=document.getElementById('s8b');
+  if(s8){
+    s8.textContent=linked;
+    if(s8b) s8b.textContent = posInView.size ? `من ${posInView.size} طلب` : '';
+  }
 }
 
 // ── TOGGLE GROUP HIGHLIGHT ──
