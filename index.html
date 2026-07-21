@@ -186,7 +186,7 @@ tr.row-pending:hover td{background:#FFF6D6!important}
 /* tooltip for group info */
 [data-tip]{position:relative;cursor:help}
 [data-tip]{position:relative}
-.js-tooltip{position:fixed;background:#1E293B;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;white-space:nowrap;z-index:99999;pointer-events:none;font-family:'Cairo',sans-serif;max-width:min(90vw,420px);overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.js-tooltip{position:fixed;background:#1E293B;color:#fff;border-radius:6px;padding:6px 10px;font-size:11px;line-height:1.6;white-space:normal;max-width:300px;z-index:99999;pointer-events:none;font-family:'Cairo',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)}
 
 /* ── DETAIL MODAL ── */
 .modal-ov{position:fixed;inset:0;background:rgba(15,28,46,.65);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .15s ease}
@@ -414,7 +414,7 @@ tr.row-pending:hover td{background:#FFF6D6!important}
           <th style="min-width:90px">P.O (Odoo)</th>
           <th style="min-width:110px;text-align:center">حالة الشحن</th>
           <th style="min-width:78px;text-align:center">Date</th>
-          <th style="min-width:82px;text-align:center">Receive Swift</th>
+          <th style="min-width:82px;max-width:105px;text-align:center">Receive Swift</th>
           <th style="min-width:112px;text-align:center">Amount Invoice</th>
           <th style="min-width:120px">From Co.</th>
           <th style="min-width:148px">To CO.</th>
@@ -1281,11 +1281,14 @@ function renderPage(){
   };
   const swiftCell=(r)=>{
     if(!r.swift)return '—';
+    const full=String(r.swift);
+    const short=full.length>16?full.substring(0,14)+'…':full;
+    const tip=full.length>16?` data-tip="${full.replace(/"/g,'&quot;')}"`:'';
     const pending=['تم حجز','قيد التدقيق','pending','hold','حجز'];
     if(pending.some(k=>r.swift.includes(k)))
-      return `<span class="sw-pending">⏳ ${r.swift}</span>`;
-    if(r.rejected)return `<span style="font-family:monospace;font-size:10.5px;color:var(--red);background:#FFF0F0;padding:2px 7px;border-radius:4px;display:inline-block">✕ ${r.swift}</span>`;
-    return `<span class="sw-c">${r.swift}</span>`;
+      return `<span class="sw-pending"${tip}>⏳ ${short}</span>`;
+    if(r.rejected)return `<span style="font-family:monospace;font-size:10.5px;color:var(--red);background:#FFF0F0;padding:2px 7px;border-radius:4px;display:inline-block"${tip}>✕ ${short}</span>`;
+    return `<span class="sw-c"${tip}>${short}</span>`;
   };
   const grpPill=(r)=>{
     if(r.grpIdx<0||!groupHighlight)return '';
