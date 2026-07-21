@@ -185,7 +185,8 @@ tr.row-pending:hover td{background:#FFF6D6!important}
 
 /* tooltip for group info */
 [data-tip]{position:relative;cursor:help}
-[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;background:#1E293B;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;white-space:nowrap;z-index:99;pointer-events:none;font-family:'Cairo',sans-serif}
+[data-tip]{position:relative}
+.js-tooltip{position:fixed;background:#1E293B;color:#fff;border-radius:6px;padding:5px 9px;font-size:11px;white-space:nowrap;z-index:99999;pointer-events:none;font-family:'Cairo',sans-serif;max-width:min(90vw,420px);overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 16px rgba(0,0,0,.25)}
 
 /* ── DETAIL MODAL ── */
 .modal-ov{position:fixed;inset:0;background:rgba(15,28,46,.65);backdrop-filter:blur(3px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .15s ease}
@@ -1758,6 +1759,41 @@ function buildAttSection(po) {
 }
 
 let st;document.getElementById('sch').addEventListener('input',()=>{clearTimeout(st);st=setTimeout(filter,280);});
+
+// ── نظام تلميحات (tooltips) بديل بالكامل عبر JS — يتفادى مشكلة القص ──
+// (رأسياً أو أفقياً) الناتجة عن overflow:hidden/auto بحاويات الجدول القابلة
+// للتمرير أو الهيدر الثابت، بإلحاق التلميحة مباشرة بـ<body> بموضع ثابت (fixed)
+(function(){
+  let tipEl = null;
+  function hideTip(){ if(tipEl){ tipEl.remove(); tipEl = null; } }
+  function showTip(el){
+    hideTip();
+    const text = el.getAttribute('data-tip');
+    if(!text) return;
+    tipEl = document.createElement('div');
+    tipEl.className = 'js-tooltip';
+    tipEl.textContent = text;
+    document.body.appendChild(tipEl);
+    const r = el.getBoundingClientRect();
+    const tr = tipEl.getBoundingClientRect();
+    let top = r.top - tr.height - 8;
+    if (top < 8) top = r.bottom + 8; // ماكو مساحة فوق العنصر → اعرضها تحته
+    let left = r.right - tr.width;
+    if (left < 8) left = 8;
+    if (left + tr.width > window.innerWidth - 8) left = window.innerWidth - tr.width - 8;
+    tipEl.style.top = top + 'px';
+    tipEl.style.left = left + 'px';
+  }
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tip]');
+    if (el) showTip(el);
+  });
+  document.addEventListener('mouseout', e => {
+    const el = e.target.closest('[data-tip]');
+    if (el) hideTip();
+  });
+  document.addEventListener('scroll', hideTip, true);
+})();
 </script>
 
 <!-- ── DETAIL MODAL ── -->
