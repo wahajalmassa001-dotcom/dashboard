@@ -225,6 +225,56 @@ tr.row-pending:hover td{background:#FFF6D6!important}
 .pay-pending{background:#FEE2E2;color:#991B1B}
 .pay-other{background:#F3F4F6;color:#6B7280}
 .modal-footer{padding:12px 22px;border-top:1px solid var(--bdr,#E2E8F0);display:flex;justify-content:flex-end;flex-shrink:0;background:var(--sur2,#F8FAFC)}
+
+/* ══════════ MOBILE (≤768px) — عرض مبسّط للهاتف ══════════ */
+.filter-toggle-btn{display:none}
+@media(max-width:768px){
+  /* رأس الصفحة */
+  .hdr-in{padding:10px 14px;gap:8px}
+  .b-ico{width:36px;height:36px;font-size:18px;border-radius:9px}
+  .b-name{font-size:13px}
+  .b-sub,.upd{display:none}
+  .btn-rf{padding:8px 13px;font-size:12px;gap:5px}
+
+  /* بطاقات الملخص KPI */
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px;padding:12px 12px 0}
+  .sc{padding:11px 12px}
+  .sc-l{font-size:9.5px;margin-bottom:4px}
+  .sc-v{font-size:16px}
+
+  /* شريط الفلاتر — يُطوى افتراضياً */
+  .ctrl{padding:10px 12px;gap:8px}
+  #sch{width:100%;flex:1 1 100%;order:1}
+  .filter-toggle-btn{display:flex;order:2;width:100%;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:var(--rs);background:var(--sur);border:1.5px solid var(--bdr2);color:var(--navy);font-weight:700;font-size:12.5px;font-family:inherit;cursor:pointer}
+  .ctrl select.inp,.ctrl .btn-toggle,.ctrl .btn-disc,.ctrl .btn-exp{display:none;order:3;width:100%}
+  .ctrl.open select.inp,.ctrl.open .btn-toggle,.ctrl.open .btn-disc,.ctrl.open .btn-exp{display:flex;width:100%}
+  .ctrl.open select.inp{display:block}
+
+  /* الجدول — أعمدة أساسية فقط، البقية عبر «التفاصيل» */
+  .tw{margin:10px 12px;border-radius:10px}
+  table{font-size:11px}
+  .tap-hint{display:block!important}
+  .ts th:nth-child(5),.ts td:nth-child(5),
+  .ts th:nth-child(6),.ts td:nth-child(6),
+  .ts th:nth-child(8),.ts td:nth-child(8),
+  .ts th:nth-child(9),.ts td:nth-child(9),
+  .ts th:nth-child(10),.ts td:nth-child(10),
+  .ts th:nth-child(11),.ts td:nth-child(11),
+  .ts th:nth-child(12),.ts td:nth-child(12),
+  .ts th:nth-child(13),.ts td:nth-child(13),
+  .ts th:nth-child(14),.ts td:nth-child(14),
+  .ts th:nth-child(15),.ts td:nth-child(15){display:none}
+  .ts th,.ts td{padding:8px 6px!important}
+
+  /* نافذة التفاصيل المنبثقة */
+  .modal-hdr{padding:14px 16px}
+  .modal-body{padding:14px 16px}
+  .modal-grid{grid-template-columns:1fr}
+
+  /* شاشة إعدادات الربط */
+  .conn-card{padding:22px 18px}
+  .conn-screen{padding:14px}
+}
 .btn-close-modal{padding:8px 22px;border-radius:8px;background:#0F1C2E;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-close-modal:hover{background:#1A2D45}
 
@@ -359,8 +409,9 @@ tr.row-pending:hover td{background:#FFF6D6!important}
   </div>
 
   <div id="err-a"></div>
-  <div class="ctrl">
+  <div class="ctrl" id="ctrlBar">
     <input id="sch" class="inp" type="text" placeholder="🔍 بحث: فاتورة، شركة، بنك، حاوية، رقم طلب...">
+    <button type="button" class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFiltersPanel()">☰ الفلاتر والخيارات</button>
     <select id="fst" class="inp" onchange="filter()">
       <option value="">كل حالات الشحن</option>
       <option value="arrived">📦 وصلت بغداد (ATA)</option>
@@ -405,6 +456,7 @@ tr.row-pending:hover td{background:#FFF6D6!important}
     <button class="btn-exp" onclick="expCSV()">📤 تصدير CSV</button>
   </div>
 
+  <div class="tap-hint" style="display:none;padding:8px 12px;font-size:11px;color:var(--mt);background:var(--sur2);border-bottom:1px solid var(--bdr)">💡 اضغط على رقم الطلب (P.O) لعرض كل التفاصيل</div>
   <div class="tw">
     <div class="ts">
       <table>
@@ -1014,6 +1066,12 @@ function connectAPI(){
   localStorage.setItem(KEY,raw);document.getElementById('conn-screen').style.display='none';showDashboard();loadData(raw);
 }
 function showConnErr(m){const e=document.getElementById('conn-err');e.textContent='⚠️ '+m;e.style.display='block';}
+function toggleFiltersPanel(){
+  const bar=document.getElementById('ctrlBar');
+  const btn=document.getElementById('filterToggleBtn');
+  bar.classList.toggle('open');
+  if(btn)btn.textContent=bar.classList.contains('open')?'✕ إخفاء الفلاتر':'☰ الفلاتر والخيارات';
+}
 function toggleSettings(){
   const el=document.getElementById('conn-screen');
   el.style.display = (el.style.display==='none'||!el.style.display) ? 'flex' : 'none';
