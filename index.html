@@ -576,7 +576,7 @@ function gvizDate(col) {
 // تحليل استجابة gviz JSON لجلب الصفوف كمصفوفة من الخلايا
 function parseGvizJson(text) {
   // إزالة wrapper: google.visualization.Query.setResponse({...})
-  const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
+  const clean = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);?\s*$/, '');
   try {
     const resp = JSON.parse(clean);
     const rows = resp?.table?.rows || [];
@@ -839,7 +839,7 @@ async function fetchShipTab(tabName) {
     + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(tabName);
   const res  = await fetch(url);
   const text = await res.text();
-  const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
+  const clean = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);?\s*$/, '');
   const resp  = JSON.parse(clean);
   const rows  = resp?.table?.rows || [];
   const cols  = resp?.table?.cols || [];
@@ -924,7 +924,7 @@ function fetchGvizJSONP(sheetId, gid, timeoutMs){
     const timer = setTimeout(() => { if(settled)return; settled=true; cleanup(); reject(new Error('انتهت مهلة الاتصال (JSONP)')); }, timeoutMs);
     script.onerror = () => { if(settled)return; settled=true; cleanup(); reject(new Error('فشل تحميل JSONP script')); };
     script.src = 'https://docs.google.com/spreadsheets/d/' + sheetId
-      + '/gviz/tq?gid=' + gid + '&tqx=out:json;responseHandler=' + cbName;
+      + '/gviz/tq?gid=' + gid + '&tqx=out:json;responseHandler:' + cbName;
     document.head.appendChild(script);
   });
 }
@@ -980,7 +980,7 @@ async function fetchOrderConfirmation() {
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const text = await res.text();
-    const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
+    const clean = text.replace(/^[\s\S]*?setResponse\(/, '').replace(/\);?\s*$/, '');
     resp = JSON.parse(clean);
   } catch(e){
     viaFetchErr = e;
