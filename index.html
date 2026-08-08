@@ -419,6 +419,7 @@ tr.row-pendingtransfer:hover td{background:#EDE9FE!important}
       <div class="sc-s" style="opacity:.65">اضغط للتصفية 👆</div>
     </div>
   </div>
+  <div id="ordconfBanner" style="display:none;margin:0 28px 14px;padding:10px 16px;border-radius:var(--rs);font-size:12.5px;font-weight:600"></div>
 
   <div id="err-a"></div>
   <div class="ctrl" id="ctrlBar">
@@ -908,58 +909,108 @@ async function fetchShipTab(tabName) {
 //  يبني خريطة P.O → {supplier, invoice, amount} تُستخدم لتعبئة الحقول
 //  الفارغة تلقائياً في mapRows() عند معالجة صفوف الحوالات.
 // ══════════════════════════════════════════════════════════════════
+let ORDCONF_STATUS = {state:'idle', msg:'', count:0, ts:null}; // idle|ok|empty|error
+
+// جلب عبر JSONP (وسم <script> ديناميكي) — يتجاوز أي حجب CORS على fetch() العادي
+// لأن طلبات <script src> لا تخضع لسياسة CORS إطلاقاً.
+function fetchGvizJSONP(sheetId, gid, timeoutMs){
+  timeoutMs = timeoutMs || 12000;
+  return new Promise((resolve, reject) => {
+    const cbName = 'gvizCb_' + Date.now() + '_' + Math.floor(Math.random()*1e6);
+    const script = document.createElement('script');
+    let settled = false;
+    const cleanup = () => { try{ delete window[cbName]; }catch(e){window[cbName]=undefined;} if(script.parentNode) script.parentNode.removeChild(script); clearTimeout(timer); };
+    window[cbName] = (resp) => { if(settled)return; settled=true; cleanup(); resolve(resp); };
+    const timer = setTimeout(() => { if(settled)return; settled=true; cleanup(); reject(new Error('انتهت مهلة الاتصال (JSONP)')); }, timeoutMs);
+    script.onerror = () => { if(settled)return; settled=true; cleanup(); reject(new Error('فشل تحميل JSONP script')); };
+    script.src = 'https://docs.google.com/spreadsheets/d/' + sheetId
+      + '/gviz/tq?gid=' + gid + '&tqx=out:json;responseHandler=' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
+function parseOrdconfTable(resp){
+  const rows = resp?.table?.rows || [];
+  const cols = resp?.table?.cols || [];
+  const hdr  = cols.map(c => (c.label||'').toLowerCase().trim());
+  const findCol = (...keys) => {
+    for (const k of keys) {
+      const i = hdr.findIndex(h => h.includes(k.toLowerCase()));
+      if (i >= 0) return i;
+    }
+    return -1;
+  };
+  const ci = {
+    po:       findCol('odoo', 'p.o', 'p o'),
+    supplier: findCol('اسم المورد', 'مورد'),
+    invoice:  findCol('invoice no', 'invoice number'),
+    amount:   findCol('مبلغ الفاتورة'),
+  };
+  if (ci.po < 0) return {error:'لم يتم العثور على عمود P.O في السجل الموحد — تحقق من عنوان الصف الأول', hdr};
+
+  const gv = (row, i) => {
+    if (i < 0) return '';
+    const cell = (row.c || [])[i];
+    if (!cell) return '';
+    return cell.f ?? cell.v ?? '';
+  };
+  const map = {};
+  let n = 0;
+  rows.forEach(row => {
+    const poRaw = String(gv(row, ci.po) || '').trim();
+    const key = normPO(poRaw) || poRaw.toUpperCase();
+    if (!key) return;
+    const supplier = String(gv(row, ci.supplier) || '').trim();
+    const invoice  = String(gv(row, ci.invoice)  || '').trim();
+    const amount   = parseFloat(String(gv(row, ci.amount) || '').replace(/[^0-9.\-]/g,'')) || 0;
+    if (!supplier && !invoice && !amount) return;
+    map[key] = { supplier, invoice, amount };
+    n++;
+  });
+  return {map, n};
+}
+
 async function fetchOrderConfirmation() {
+  let resp = null, viaFetchErr = null;
+
+  // المحاولة 1: fetch() عادي (أسرع عادةً)
   try {
     const url = 'https://docs.google.com/spreadsheets/d/' + ORDCONF_SHEET_ID
       + '/gviz/tq?tqx=out:json&gid=' + ORDCONF_GID;
-    const res  = await fetch(url);
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
     const text = await res.text();
     const clean = text.replace(/^.*?setResponse\(/, '').replace(/\);?\s*$/, '');
-    const resp  = JSON.parse(clean);
-    const rows  = resp?.table?.rows || [];
-    const cols  = resp?.table?.cols || [];
-    const hdr   = cols.map(c => (c.label||'').toLowerCase().trim());
-    const findCol = (...keys) => {
-      for (const k of keys) {
-        const i = hdr.findIndex(h => h.includes(k.toLowerCase()));
-        if (i >= 0) return i;
-      }
-      return -1;
-    };
-    const ci = {
-      po:       findCol('odoo', 'p.o', 'p o'),
-      supplier: findCol('اسم المورد', 'مورد'),
-      invoice:  findCol('invoice no', 'invoice number'),
-      amount:   findCol('مبلغ الفاتورة'),
-    };
-    if (ci.po < 0) { console.warn('OrderConfirmation: لا يوجد عمود P.O'); return 0; }
+    resp = JSON.parse(clean);
+  } catch(e){
+    viaFetchErr = e;
+    resp = null;
+  }
 
-    const gv = (row, i) => {
-      if (i < 0) return '';
-      const cell = (row.c || [])[i];
-      if (!cell) return '';
-      return cell.f ?? cell.v ?? '';
-    };
+  // المحاولة 2: JSONP احتياطي (يتجاوز حجب CORS المحتمل على fetch())
+  let viaJsonp = false;
+  if (!resp) {
+    try {
+      resp = await fetchGvizJSONP(ORDCONF_SHEET_ID, ORDCONF_GID);
+      viaJsonp = true;
+    } catch(e2){
+      ORDCONF_STATUS = {state:'error', msg:'فشل الاتصال بالسجل الموحد عبر الطريقتين (fetch: '+(viaFetchErr?viaFetchErr.message:'?')+' / JSONP: '+e2.message+') — تحقق من صلاحية المشاركة "Anyone with the link"', count:0, ts:new Date()};
+      console.warn(ORDCONF_STATUS.msg);
+      return 0;
+    }
+  }
 
-    const map = {};
-    let n = 0;
-    rows.forEach(row => {
-      const poRaw = String(gv(row, ci.po) || '').trim();
-      const key = normPO(poRaw) || poRaw.toUpperCase();
-      if (!key) return;
-      const supplier = String(gv(row, ci.supplier) || '').trim();
-      const invoice  = String(gv(row, ci.invoice)  || '').trim();
-      const amount   = parseFloat(String(gv(row, ci.amount) || '').replace(/[^0-9.\-]/g,'')) || 0;
-      if (!supplier && !invoice && !amount) return;
-      map[key] = { supplier, invoice, amount };
-      n++;
-    });
-    ORDCONF_MAP = map;
-    return n;
-  } catch(e) {
-    console.warn('fetchOrderConfirmation failed:', e.message);
+  const parsed = parseOrdconfTable(resp);
+  if (parsed.error) {
+    ORDCONF_STATUS = {state:'error', msg:parsed.error, count:0, ts:new Date()};
+    console.warn(ORDCONF_STATUS.msg, 'الأعمدة المُستلمة:', parsed.hdr);
     return 0;
   }
+  ORDCONF_MAP = parsed.map;
+  ORDCONF_STATUS = parsed.n>0
+    ? {state:'ok', msg: viaJsonp?'(عبر JSONP الاحتياطي)':'', count:parsed.n, ts:new Date()}
+    : {state:'empty', msg:'تم الاتصال بالسجل الموحد بنجاح لكن لم يتم العثور على أي صف يحتوي بيانات (تحقق من وجود بيانات فعلية في الأعمدة A/C/H/E)', count:0, ts:new Date()};
+  return parsed.n;
 }
 
 // جلب كل الشيتات بالتوازي (عبر gviz)
@@ -1187,6 +1238,7 @@ async function loadData(apiUrl){
     const json=await res.json();
     processData(json);
     document.getElementById('upd').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+    renderOrdconfBanner();
     // ── جلب بيانات الشحن الحية من كل المصادر بالتوازي (لا يؤثر على سرعة ظهور الحوالات) ──
     refreshShipmentData();
   }catch(e){
@@ -1407,6 +1459,30 @@ function filter(){
     return ak.localeCompare(bk2)||(a.amount-b.amount);
   });
   page=0;updateStats();renderPage();updateClearFiltersBtn();
+}
+function renderOrdconfBanner(){
+  const el=document.getElementById('ordconfBanner');
+  if(!el)return;
+  const s=ORDCONF_STATUS;
+  if(s.state==='ok'){
+    if(s.msg){ // نجح لكن عبر الطريقة الاحتياطية JSONP — نُعلم بذلك بلطف بدل الإخفاء التام
+      el.style.display='block';
+      el.style.background='#ECFDF5';el.style.border='1.5px solid #A7F3D0';el.style.color='#065F46';
+      el.textContent='✅ تم استيراد '+s.count+' طلب من السجل الموحد '+s.msg;
+    } else {
+      el.style.display='none';
+    }
+    return;
+  }
+  el.style.display='block';
+  const time=s.ts?s.ts.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'}):'';
+  if(s.state==='error'){
+    el.style.background='#FEF2F2';el.style.border='1.5px solid #FCA5A5';el.style.color='#B91C1C';
+    el.textContent='⚠️ استيراد السجل الموحد (تثبيت الطلبات): '+s.msg+(time?' — '+time:'');
+  } else if(s.state==='empty'){
+    el.style.background='#FFFBEB';el.style.border='1.5px solid #FDE68A';el.style.color='#92400E';
+    el.textContent='ℹ️ '+s.msg+(time?' — '+time:'');
+  }
 }
 function updateClearFiltersBtn(){
   const btn=document.getElementById('clearFiltersBtn');
