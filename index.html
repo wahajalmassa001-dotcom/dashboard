@@ -406,9 +406,9 @@ tr.row-pendingtransfer:hover td{background:#EDE9FE!important}
     <div class="sc g5"><div class="sc-l">مرفوضة / ملغاة</div><div class="sc-v" id="s5">—</div></div>
     <div class="sc g6"><div class="sc-l">دفعات مجزأة</div><div class="sc-v" id="s6">—</div></div>
     <div class="sc g7" style="position:relative"><div class="sc-l">🟡 قيد التدقيق / محجوزة</div><div class="sc-v" id="s7">—</div></div>
-    <div class="sc g8" style="position:relative" title="عدد الطلبات (P.O) التي عُثر لها على سجل مطابق في بيانات واجهة تتبع الشحنات">
+    <div class="sc g8" style="position:relative;cursor:pointer" onclick="quickFilterImportedFromShip()" title="اضغط لعرض فقط الحوالات التي عُثر لها على سجل شحن مطابق في واجهة تتبع الشحنات">
       <div class="sc-l">🔗 مستوردة من الشحن</div><div class="sc-v" id="s8">—</div>
-      <div class="sc-s" id="s8b"></div>
+      <div class="sc-s" id="s8b">اضغط للتصفية 👆</div>
     </div>
     <div class="sc g8" style="position:relative;cursor:pointer" onclick="quickFilterOrdconf()" title="اضغط لعرض كل الحوالات المُثبَّتة من السجل الموحد فقط">
       <div class="sc-l">✅ مثبَّتة من السجل الموحد</div><div class="sc-v" id="s9">—</div>
@@ -432,6 +432,7 @@ tr.row-pendingtransfer:hover td{background:#EDE9FE!important}
       <option value="atport">⚓ وصلت ميناء وسيط</option>
       <option value="transit">🚢 في الطريق</option>
       <option value="notshipped">⏳ لم تُشحن بعد</option>
+      <option value="imported">🔗 مستوردة من الشحن فقط</option>
     </select>
     <select id="fs" class="inp" onchange="filter()">
       <option value="">كل حالات الحوالة</option>
@@ -728,7 +729,20 @@ async function loadShipmentDataAppsScript() {
 //  الطريقة: gviz/tq بدون API key — يعمل مع CORS كاملاً
 // ════════════════════════════════════════════════════════
 const SHIP_GID   = '1spnY87iApcav3KKmo0QTaNBkFzvvWSQn0u3lgddeCGU';
-const SHIP_TABS  = ['01+02+03-2026', '04-2026', '05-2026', '06-2026'];
+// FIX: القائمة كانت ثابتة يدوياً وتتوقف عند 06-2026 — أي تبويب شهري جديد
+// (07-2026، 08-2026...) يُضاف لملف الشحنات لاحقاً لم يكن يُجلب إطلاقاً، فتظهر
+// شحناته "غير مستوردة" رغم وجودها فعلياً. الآن تُبنى القائمة تلقائياً حتى
+// الشهر الحالي + شهر احتياطي مستقبلي. محاولة جلب تبويب غير موجود تفشل بصمت
+// (catch(() => [])) في fetchShipTab، فلا خطر من إضافة أسماء احتمالية زائدة.
+function buildShipTabCandidates(){
+  const legacy = ['01+02+03-2026'];
+  const now = new Date();
+  const upTo = Math.max(now.getMonth() + 2, 6); // +شهر احتياطي مستقبلي واحد
+  const months = [];
+  for (let m = 4; m <= upTo; m++) months.push(String(m).padStart(2,'0') + '-2026');
+  return legacy.concat(months);
+}
+const SHIP_TABS  = buildShipTabCandidates();
 
 // تحليل تاريخ من أي صيغة
 function parseShipDate(v) {
@@ -1082,15 +1096,18 @@ async function refreshShipmentData(){
 
 
 // ─── Container helpers — تجلب من SHIPMENT_MAP بدلاً من row.container ───
+// FIX: نفس إصلاح getShipmentInfo — استخدام normPO() عند البحث بدل المقارنة الخام
 function getContainerDisplay(po) {
   if (!po || po === '—') return '—';
-  const s = SHIPMENT_MAP[(po||'').trim().toUpperCase()];
+  const key = normPO(po) || (po||'').trim().toUpperCase();
+  const s = SHIPMENT_MAP[key];
   if (!s || !s.containerNo) return '—';
   const t = s.containerNo.trim();
   return t || '—';
 }
 function getCountDisplay(po) {
-  const s = SHIPMENT_MAP[(po||'').trim().toUpperCase()];
+  const key = normPO(po) || (po||'').trim().toUpperCase();
+  const s = SHIPMENT_MAP[key];
   return (s && s.containerCount) ? s.containerCount : '';
 }
 
@@ -1111,7 +1128,12 @@ function buildShipmentMap(){
 }
 function getShipmentInfo(po){
   if(!po) return null;
-  return SHIPMENT_MAP[String(po).trim().toUpperCase()] || null;
+  // FIX: البحث كان يستخدم po خام بدون تطبيع (normPO)، بينما SHIPMENT_MAP تُبنى
+  // بمفاتيح مُطبَّعة — أي رقم طلب فيه خطأ كتابي بسيط (POO405 بدل P00405، عدد
+  // أصفار مختلف...) كان يفشل في الربط رغم وجود سجل شحن صحيح له. الآن نطبّع
+  // po بنفس الطريقة (normPO) قبل البحث، تماماً كما تُبنى الخريطة.
+  const key = normPO(po) || String(po).trim().toUpperCase();
+  return SHIPMENT_MAP[key] || null;
 }
 // Determine shipment status code: shipped / arrived / transit / atport / notshipped / na
 function shipmentStatus(po){
@@ -1445,7 +1467,8 @@ function filter(){
     if(fs==='rejected'&&!r.rejected)return false;
     if(fs==='pending'&&!r.pending)return false;
     if(fs==='group'&&r.grpIdx<0)return false;
-    if(fst&&r.shipStatus!==fst)return false;
+    if(fst==='imported'){ if(r.shipStatus==='na') return false; }
+    else if(fst&&r.shipStatus!==fst)return false;
     if(q){const t=[r.invoice,r.to_co,r.bene,r.bank,r.po,r.notes,r.container,r.manifest,r.from_co,r._sheet].join(' ').toLowerCase();if(!t.includes(q))return false;}
     return true;
   });
@@ -1509,6 +1532,14 @@ function quickFilterOrdconf(){
   if(already){ resetAllFilters(); return; } // ضغطة ثانية = إلغاء نفس الفلتر
   switchSheet(-1);
   if(fo){fo.value='matched';filter();}
+  document.querySelector('.tw')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function quickFilterImportedFromShip(){
+  const fst=document.getElementById('fst');
+  const already = fst && fst.value==='imported' && curIdx===-1;
+  if(already){ resetAllFilters(); return; } // ضغطة ثانية = إلغاء نفس الفلتر
+  switchSheet(-1);
+  if(fst){fst.value='imported';filter();}
   document.querySelector('.tw')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function quickFilterPendingTransfer(){
