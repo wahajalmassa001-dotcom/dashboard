@@ -2203,6 +2203,7 @@ const CFG={
   useEstimates:true, // false = الاعتماد على عمود تاريخ الاستحقاق فقط (يُنصح بعد تعبئة العمود)
 };
 const DAY=86400000;
+const rk=r=>[r._sheet,r.invoice,r.po,r.amount,r.date].join('|');   // هوية الدفعة: الفاتورة وحدها لا تكفي مع الدفعات المجزأة
 let DUE=[], DUE_EXPLICIT={};
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const today=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();};
@@ -2213,15 +2214,17 @@ const _mapRows=window.mapRows;
 window.mapRows=function(raw,sheetName){
   const rows=_mapRows(raw,sheetName);
   try{
-    let hi=-1,dc=-1,ic=-1;
+    let hi=-1,dc=-1,ic=-1,ac=-1,tc=-1;
     for(let i=0;i<Math.min(raw.length,10)&&dc<0;i++){
       dc=raw[i].findIndex(h=>/استحقاق|تاريخ السداد|تاريخ التسديد|\bdue\b/i.test(h||''));
-      if(dc>=0){hi=i;ic=raw[i].findIndex(h=>/invoice no/i.test(h||''));}
+      if(dc>=0){hi=i;ic=raw[i].findIndex(h=>/invoice no/i.test(h||''));ac=raw[i].findIndex(h=>/amount/i.test(h||''));tc=raw[i].findIndex(h=>/^\s*date\s*$/i.test(h||''));}
     }
     if(dc>=0&&ic>=0){
+      const num=a=>parseFloat(String(a==null?'':a).replace(/[^0-9.-]/g,''))||0;
+      const k=(inv,a,d)=>String(inv||'').trim()+'|'+(ac>=0?num(a):'')+'|'+(tc>=0?normalizeDate(d):'');
       const m={};
-      raw.slice(hi+1).forEach(r=>{const d=normalizeDate(r[dc]);if(r[ic]&&pd(d))m[r[ic].trim()]=d;});
-      rows.forEach(r=>{if(m[r.invoice])DUE_EXPLICIT[r.invoice+'|'+r.po]=m[r.invoice];});
+      raw.slice(hi+1).forEach(r=>{const d=normalizeDate(r[dc]);if(r[ic]&&pd(d))m[k(r[ic],r[ac],r[tc])]=d;});
+      rows.forEach(r=>{const v=m[k(r.invoice,ac>=0?r.amount:'',tc>=0?r.date:'')];if(v)DUE_EXPLICIT[rk(r)]=v;});
     }
   }catch(e){console.warn('due-col scan',e);}
   return rows;
@@ -2236,17 +2239,18 @@ function computeDue(){
   const lastByPO={};
   all.forEach(r=>{const k=normPO(r.po);if(k)lastByPO[k]=Math.max(lastByPO[k]||0,pd(r.date));});
   const add=(r,due,reason)=>{
-    const key=r.invoice+'|'+r.po+'|'+reason; if(seen.has(key))return; seen.add(key);
+    const key=rk(r)+'|'+reason; if(seen.has(key))return; seen.add(key);
     const days=Math.round((due-T)/DAY);
     if(days>CFG.soonDays)return;
     out.push({po:r.po,sup:r.to_co,inv:r.invoice,amt:r.amount,amtD:r.amt_d,due,days,reason,
       lvl:days<0?'over':days===0?'today':'soon'});
   };
   all.forEach(r=>{
-    const ex=DUE_EXPLICIT[r.invoice+'|'+r.po];
     const paid=/\d{1,2}\/\d{1,2}\/\d{4}/.test(r.swift||'');
-    // أ) تاريخ استحقاق صريح من الشيت — يُهمل إذا وصل السويفت
-    if(ex){ if(!paid)add(r,pd(ex),'تاريخ الاستحقاق المسجَّل في الشيت'); return; }
+    if(paid)return;                       // تاريخ صدور السويفت موجود = الدفعة مسدَّدة/مغلقة (لا إشعار مهما كانت الملاحظات أو حالة الطلب)
+    const ex=DUE_EXPLICIT[rk(r)];
+    // أ) تاريخ استحقاق صريح من الشيت لهذه الدفعة تحديداً
+    if(ex){ add(r,pd(ex),'تاريخ الاستحقاق المسجَّل في الشيت'); return; }
     // ب) حوالة معلّقة لم يصل سويفتها
     if(CFG.useEstimates&&!paid&&(r.pending||/تم التقديم|تقديم/.test(r.swift||''))&&pd(r.date)){
       add(r,pd(r.date)+CFG.stuckDays*DAY,'حوالة مقدَّمة ولم يصل سويفتها (قيد التدقيق/محجوزة)');
@@ -2335,6 +2339,7 @@ function boot(){
 if(document.readyState==='complete')boot(); else window.addEventListener('load',boot);
 })();
 </script>
+
 
 </body>
 </html>
