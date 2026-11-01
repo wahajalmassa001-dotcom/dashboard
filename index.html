@@ -342,7 +342,7 @@ tr.row-pendingtransfer:hover td{background:#EDE9FE!important}
 .att-spinner{display:inline-block;width:14px;height:14px;border:2px solid #E2E8F0;border-top-color:#534AB7;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:5px}
 
 </style>
-  <!-- ═══════════════ إضافة: إشعارات استحقاق السداد للموردين ═══════════════
+<!-- ═══════════════ إضافة: إشعارات استحقاق السداد للموردين ═══════════════
      الصق هذا الملف كاملاً في ملف الداشبورد مباشرة قبل وسم </body> — لا تعديل في أي مكان آخر. -->
 <style>
 #dueBell{position:relative;background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;height:36px;padding:0 12px;font-size:16px;cursor:pointer;font-family:inherit}
@@ -370,6 +370,7 @@ const CFG={
   soonDays:7,        // يظهر الإشعار قبل الاستحقاق بهذا العدد من الأيام
   blDelayDays:5,     // "T/T against copy of B/L" → الاستحقاق = تاريخ الشحن + هذا العدد
   stuckDays:7,       // حوالة "قيد التدقيق/محجوزة/تم التقديم" لم يصل لها سويفت بعد هذه المدة تُعتبر متأخرة
+  useEstimates:true, // false = الاعتماد على عمود تاريخ الاستحقاق فقط (يُنصح بعد تعبئة العمود)
 };
 const DAY=86400000;
 let DUE=[], DUE_EXPLICIT={};
@@ -415,11 +416,12 @@ function computeDue(){
     // أ) تاريخ استحقاق صريح من الشيت — يُهمل إذا وصل السويفت
     if(ex){ if(!paid)add(r,pd(ex),'تاريخ الاستحقاق المسجَّل في الشيت'); return; }
     // ب) حوالة معلّقة لم يصل سويفتها
-    if(!paid&&(r.pending||/تم التقديم|تقديم/.test(r.swift||''))&&pd(r.date)){
+    if(CFG.useEstimates&&!paid&&(r.pending||/تم التقديم|تقديم/.test(r.swift||''))&&pd(r.date)){
       add(r,pd(r.date)+CFG.stuckDays*DAY,'حوالة مقدَّمة ولم يصل سويفتها (قيد التدقيق/محجوزة)');
       return;
     }
     // ج) رصيد متبقٍ مرتبط بتاريخ الشحن (قبل الشحن / مقابل صورة B/L / دفع جزئي)
+    if(!CFG.useEstimates)return;
     const k=normPO(r.po); if(!k)return;
     if(pd(r.date)<lastByPO[k])return;            // يوجد سطر أحدث لنفس الطلب → غالباً سُدِّد المتبقي
     const n=(r.notes||'').toLowerCase(), f=getFullShip(r.po)||{};
