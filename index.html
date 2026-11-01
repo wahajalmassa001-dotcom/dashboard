@@ -2199,7 +2199,8 @@ let st;document.getElementById('sch').addEventListener('input',()=>{clearTimeout
 const CFG={
   soonDays:7,        // يظهر الإشعار قبل الاستحقاق بهذا العدد من الأيام
   blDelayDays:5,     // "T/T against copy of B/L" → الاستحقاق = تاريخ الشحن + هذا العدد
-  stuckDays:7,       // حوالة "قيد التدقيق/محجوزة/تم التقديم" لم يصل لها سويفت بعد هذه المدة تُعتبر متأخرة
+  stuckMin:10,       // حوالة "قيد التدقيق/محجوزة/تم التقديم" بلا سويفت: لا إشعار قبل مرور هذا العدد من الأيام على تاريخ الحوالة
+  stuckMax:12,       // بعد هذا العدد تُعتبر متأخرة (بين stuckMin وstuckMax يظهر إشعار تحذيري)
   useEstimates:true, // false = الاعتماد على عمود تاريخ الاستحقاق فقط (يُنصح بعد تعبئة العمود)
 };
 const DAY=86400000;
@@ -2238,10 +2239,10 @@ function computeDue(){
   const T=today(), out=[], seen=new Set();
   const lastByPO={};
   all.forEach(r=>{const k=normPO(r.po);if(k)lastByPO[k]=Math.max(lastByPO[k]||0,pd(r.date));});
-  const add=(r,due,reason)=>{
+  const add=(r,due,reason,force)=>{
     const key=rk(r)+'|'+reason; if(seen.has(key))return; seen.add(key);
     const days=Math.round((due-T)/DAY);
-    if(days>CFG.soonDays)return;
+    if(!force&&days>CFG.soonDays)return;
     out.push({po:r.po,sup:r.to_co,inv:r.invoice,amt:r.amount,amtD:r.amt_d,due,days,reason,
       lvl:days<0?'over':days===0?'today':'soon'});
   };
@@ -2253,7 +2254,8 @@ function computeDue(){
     if(ex){ add(r,pd(ex),'تاريخ الاستحقاق المسجَّل في الشيت'); return; }
     // ب) حوالة معلّقة لم يصل سويفتها
     if(CFG.useEstimates&&!paid&&(r.pending||/تم التقديم|تقديم/.test(r.swift||''))&&pd(r.date)){
-      add(r,pd(r.date)+CFG.stuckDays*DAY,'حوالة مقدَّمة ولم يصل سويفتها (قيد التدقيق/محجوزة)');
+      const el=Math.floor((T-pd(r.date))/DAY);          // الأيام المنقضية منذ تاريخ الحوالة
+      if(el>=CFG.stuckMin)add(r,pd(r.date)+CFG.stuckMax*DAY,'حوالة مقدَّمة بانتظار السويفت منذ '+el+' يوماً (مهلة التدقيق المعتادة '+CFG.stuckMin+'–'+CFG.stuckMax+' يوماً)',true);
       return;
     }
     // ج) رصيد متبقٍ مرتبط بتاريخ الشحن (قبل الشحن / مقابل صورة B/L / دفع جزئي)
@@ -2339,6 +2341,7 @@ function boot(){
 if(document.readyState==='complete')boot(); else window.addEventListener('load',boot);
 })();
 </script>
+
 
 
 </body>
