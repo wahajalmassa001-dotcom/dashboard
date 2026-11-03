@@ -2172,6 +2172,130 @@ let st;document.getElementById('sch').addEventListener('input',()=>{clearTimeout
     </div>
   </div>
 </div>
+<!-- ╔══════════════════════════════════════════════════════════════════════════╗
+     ║  كتلة الإضافات الموحدة لواجهة تقرير الحوالات (3 إضافات في كتلة واحدة)     ║
+     ║  الترتيب مقصود: 1) مزامنة الشحن من واجهة التتبع  2) إشعارات الاستحقاق     ║
+     ║  3) كشف المستحقات وأرصدة المصارف                                          ║
+     ╚══════════════════════════════════════════════════════════════════════════╝ -->
+<!-- ═══════════════ إضافة: مزامنة حالات الشحن من واجهة تتبع الشحنات (المرجع) ═══════════════
+     الصق هذا الملف كاملاً في ملف واجهة الحوالات قبل </body> (في أي ترتيب مع الإضافات الأخرى).
+     واجهة تتبع الشحنات هي المرجع: ما تقوله عن التواريخ ووصول بغداد يُعتمد هنا حتى لو اختلفت المصادر الأخرى. -->
+<script>
+(function(){
+// نفس رابط Apps Script الذي تستخدمه واجهة تتبع الشحنات (EMBEDDED_SCRIPT_URL فيها)
+const TRACKER_URL='https://script.google.com/macros/s/AKfycbxVuBpNPhNPhKZsAp1ICpsfPrlBYfdWJJCvQrpBxG96Kg3twPevJuc96cnO2NlAAlYajw/exec';
+const STATUS_FIELDS=['shipDate','etaExpected','etaUmQasr','ataBaghdad','notes'];   // يكتبها المتتبع حتى لو فارغة
+let TRACKER=null;
+
+// ── تحويل خلية "تاريخ + ملاحظة" إلى {date:'dd/mm/yyyy', note} ──
+const MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+const p2=n=>String(n).padStart(2,'0');
+function splitDateNote(raw){
+  const s=String(raw==null?'':raw).trim(); if(!s)return{date:'',note:''};
+  const nd=normalizeDate(s);                                           // JS Date.toString / ISO / d/m/yyyy ...
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(nd))return{date:nd,note:''};
+  let m=s.match(/^(\d{1,2})[.\s\-]([A-Za-z]{3})[A-Za-z]*[.\s\-](\d{4})$/);   // 31.MAY.2026
+  if(m&&MON[m[2].toLowerCase()])return{date:p2(m[1])+'/'+p2(MON[m[2].toLowerCase()])+'/'+m[3],note:''};
+  m=s.match(/(\d{1,2})[\/\\.\-](\d{1,2})[\/\\.\-](\d{4})/);                  // تاريخ داخل نص: "25/4/2026 يوجد تلف"
+  if(!m)return{date:'',note:s};
+  const note=(s.slice(0,m.index)+s.slice(m.index+m[0].length)).replace(/^[\s\-–—:،,]+|[\s\-–—:،,]+$/g,'').trim();
+  return{date:p2(m[1])+'/'+p2(m[2])+'/'+m[3],note};
+}
+
+// ── سجل المتتبع → سجل الشحن المعتمد في واجهة الحوالات ──
+function mapRec(t){
+  const key=normPO(t.po)||String(t.po||'').trim().toUpperCase(); if(!key)return null;
+  const ship=splitDateNote(t.ship_date),ex=splitDateNote(t.eta_expected),um=splitDateNote(t.eta_umqasr),ata=splitDateNote(t.ata_baghdad);
+  const notes=[t.notes,ata.note&&('⚠️ '+ata.note),ex.note,um.note].filter(Boolean).join(' | ');
+  return{key,rec:{po:key,sheet:t.month||'',shipDate:ship.date,etaExpected:ex.date,etaUmQasr:um.date,ataBaghdad:ata.date,
+    bl:t.bl||'',containerNo:t.containers_no||'',containerCount:t.containers_count||'',line:t.line||'',notes}};
+}
+// بعض الطلبات لها عدة صفوف (حاويات مختلفة): تُدمج في سجل واحد
+function buildMap(arr){
+  const groups={};
+  arr.forEach(t=>{const r=mapRec(t);if(r)(groups[r.key]=groups[r.key]||[]).push(r.rec);});
+  const out={};
+  Object.entries(groups).forEach(([k,list])=>{
+    if(list.length===1){out[k]=list[0];return;}
+    const uniq=f=>[...new Set(list.map(r=>r[f]).filter(Boolean))];
+    const d=s=>{const p=s.split('/');return new Date(p[2]+'-'+p[1]+'-'+p[0]).getTime()||0;};
+    const allArrived=list.every(r=>r.ataBaghdad);                       // لا تُعتبر وصلت إلا إذا وصلت كل الدفعات
+    out[k]={po:k,sheet:list[list.length-1].sheet,
+      shipDate:uniq('shipDate').sort((a,b)=>d(a)-d(b))[0]||'',
+      etaExpected:uniq('etaExpected').sort((a,b)=>d(b)-d(a))[0]||'',
+      etaUmQasr:uniq('etaUmQasr').sort((a,b)=>d(b)-d(a))[0]||'',
+      ataBaghdad:allArrived?list.map(r=>r.ataBaghdad).sort((a,b)=>d(b)-d(a))[0]:'',
+      bl:uniq('bl').join(' + '),containerNo:uniq('containerNo').join(' + '),
+      containerCount:uniq('containerCount').join(' + '),line:uniq('line').join(' + '),notes:uniq('notes').join(' | ')};
+  });
+  return out;
+}
+
+// ── 1) مصدر الشحن: المتتبع أولاً، وإن فشل نرجع للمصدر السابق ──
+const _origLoad=window.loadShipmentDataAppsScript;
+window.loadShipmentDataAppsScript=async function(){
+  try{
+    const opt=(typeof AbortSignal!=='undefined'&&AbortSignal.timeout)?{signal:AbortSignal.timeout(20000)}:{};
+    const res=await fetch(TRACKER_URL+'?action=shipments',opt);
+    const arr=await res.json();
+    if(!Array.isArray(arr))throw new Error((arr&&arr.error)||'استجابة غير متوقعة من واجهة التتبع');
+    TRACKER=buildMap(arr);
+    return arr.length;
+  }catch(e){
+    console.warn('shipment-tracker sync: تعذّر الجلب من واجهة التتبع — الرجوع للمصدر السابق:',e.message);
+    return _origLoad?_origLoad():0;
+  }
+};
+
+// ── 2) بعد كل تحديث: المتتبع يطغى، ثم تُعاد حالات الشحن (كانت تُحسب مرة واحدة قبل وصول البيانات الحية) ──
+function applyTracker(){
+  if(!TRACKER)return;
+  Object.entries(TRACKER).forEach(([k,t])=>{
+    const m=Object.assign({},SHIPMENT_MAP[k]||{},{po:k});
+    STATUS_FIELDS.forEach(f=>{m[f]=t[f]||'';});
+    ['bl','containerNo','containerCount','line','sheet'].forEach(f=>{if(t[f])m[f]=t[f];});
+    SHIPMENT_MAP[k]=m;
+  });
+}
+function recomputeStatuses(){
+  if(typeof sheets==='undefined'||!sheets.length)return;
+  sheets.flatMap(s=>s.rows).forEach(r=>{r.shipStatus=shipmentStatus(r.po);});
+  if(typeof filter==='function'){
+    const pg=(typeof page!=='undefined')?page:0;               // filter() تُصفّر رقم الصفحة؛ نعيده كما كان
+    filter();
+    if(typeof page!=='undefined'&&pg>0){
+      const last=Math.max(0,Math.ceil(fltRows.length/PAGE_SZ)-1);
+      page=Math.min(pg,last);renderPage();
+    }
+  }
+}
+
+// ── 3) حالة "وصلت ميناء وسيط": تتحمل كتابة (العقبة/العقبه) وصيغ "حاليا في…" و"في خور فكان" ──
+const PORT_RULES=true;   // false = إيقاف التعرف الإضافي على "ميناء وسيط" والإبقاء على منطق الواجهة الأصلي
+const PORT='(?:عقب[ةه]|شارق[ةه]|خور\\s*فكان|جبل\\s*علي|aqaba)';
+const AT=[new RegExp('وصل[تة]?\\s*(?:ال[ىي]|إلى)?\\s*(?:ميناء\\s*)?(?:ال)?'+PORT,'i'),
+          new RegExp('حالي[اً]*\\s*في\\s*(?:ال)?'+PORT,'i'),
+          new RegExp('(?:^|\\|\\s*|⚠️\\s*)في\\s+(?:ال)?'+PORT,'i')];
+const _origStatus=window.shipmentStatus;
+window.shipmentStatus=function(po){
+  const st=_origStatus(po);
+  if(PORT_RULES&&(st==='transit'||st==='notshipped')){
+    const s=getShipmentInfo(po),t=s?[s.notes,s.etaUmQasr,s.etaExpected].filter(Boolean).join(' | '):'';
+    if(t&&AT.some(re=>re.test(t)))return'atport';
+  }
+  return st;
+};
+
+function boot(){
+  if(window.__trkBooted)return;window.__trkBooted=true;
+  if(typeof window.refreshShipmentData!=='function'){console.warn('shipment-tracker sync: refreshShipmentData غير موجودة');return;}
+  const _rs=window.refreshShipmentData;
+  window.refreshShipmentData=async function(){const n=await _rs();applyTracker();recomputeStatuses();return n;};
+}
+if(document.readyState==='complete')boot();else window.addEventListener('load',boot);
+})();
+</script>
+
 <!-- ═══════════════ إضافة: إشعارات استحقاق السداد للموردين ═══════════════
      الصق هذا الملف كاملاً في ملف الداشبورد مباشرة قبل وسم </body> — لا تعديل في أي مكان آخر. -->
 <style>
@@ -2342,7 +2466,165 @@ if(document.readyState==='complete')boot(); else window.addEventListener('load',
 })();
 </script>
 
+<!-- ═══════════════ إضافة: نافذة كشف الحوالات المستحقة وأرصدة المصارف ═══════════════
+     الصق هذا الملف كاملاً قبل </body> (بعد إضافة الإشعارات أو قبلها — لا تعتمد إحداهما على الأخرى). -->
+<style>
+#dsBtn{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;height:36px;padding:0 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+#dsBtn:hover{background:rgba(255,255,255,.22)}
+#dsOv{position:fixed;inset:0;background:rgba(15,28,46,.65);z-index:520;display:none;align-items:center;justify-content:center;padding:12px}
+#dsOv.open{display:flex}
+.ds-box{background:#fff;border-radius:14px;width:min(1450px,100%);max-height:94vh;display:flex;flex-direction:column;overflow:hidden;font-family:inherit}
+.ds-h{background:linear-gradient(135deg,#0F1C2E,#1A2D45);color:#fff;padding:13px 18px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.ds-h button{border:0;border-radius:7px;padding:6px 12px;margin-right:6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700}
+.ds-b{overflow:auto;padding:14px 18px}
+.ds-top{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.ds-top label{font-size:11.5px;font-weight:700;color:#475569;display:flex;flex-direction:column;gap:4px}
+.ds-top input,.ds-top select,.ds-t input{border:1px solid #CBD5E1;border-radius:7px;padding:6px 9px;font-family:inherit;font-size:12.5px;background:#FFFBEB}
+.ds-t{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px}
+.ds-t th{background:#FFC000;border:1px solid #F4B183;padding:8px;font-weight:800;color:#000}
+.ds-t td{border:1px solid #F4B183;padding:7px 8px;text-align:center;background:#F2F2F2}
+.ds-t tr.red td{color:#C00000;font-weight:700}
+.ds-t td input{width:100%;min-width:90px;text-align:center}
+.ds-sum td{background:#FFC000!important;font-weight:800;color:#000}
+.ds-t .neg{color:#C00000;font-weight:800}.ds-t .pos{color:#166534;font-weight:800}
+.ds-po{color:#1E40AF;text-decoration:underline;cursor:pointer}
+.ds-note{font-size:11px;color:#94A3B8;margin:-8px 0 12px}
+@media print{body>*:not(#dsOv){display:none!important}#dsOv{position:static;display:block;background:none;padding:0}.ds-box{max-height:none}.ds-h button{display:none}.ds-t input{border:0;background:none}}
+</style>
+<script>
+(function(){
+const KEY='wahaj_ds_v2';
+// حقول يدوية تُحفظ في متصفح هذا الجهاز (localStorage)
+let S={rate:1520,comm:0.003,balDate:'',banks:{},rows:{},mode:'unpaid',fb:'',fc:''};
+try{const o=JSON.parse(localStorage.getItem('wahaj_ds_v1')||'{}');delete o.rate;Object.assign(S,o,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
 
+// ───────── المزامنة مع Google Sheet عبر Apps Script (تبويب DS_Manual) ─────────
+const API=(typeof DEFAULT_API_URL!=='undefined')?DEFAULT_API_URL:'';
+let pending={};                                   // تغييرات لم تصل للخادم بعد
+const isOpen=()=>{const o=document.getElementById('dsOv');return !!o&&o.classList.contains('open');};
+const editing=()=>{const b=document.getElementById('dsBody');return !!b&&b.contains(document.activeElement)&&/INPUT|SELECT/.test(document.activeElement.tagName);};
+function setState(ok,msg){const el=document.getElementById('dsSync');if(!el)return;
+  el.textContent=ok?'☁ متزامن مع Google Sheet':'⚠ تعذّرت المزامنة — محفوظ محلياً وسيُعاد الإرسال'+(msg?' ('+msg+')':'');el.style.color=ok?'#86EFAC':'#FCA5A5';}
+function applyKey(k,v){if(k.startsWith('bank:'))S.banks[k.slice(5)]=v;else if(k.startsWith('row:'))S.rows[k.slice(4)]=v;else if(k.startsWith('set:'))S[k.slice(4)]=v;}
+const put=(k,v)=>{pending[k]=v;save();flush();};
+async function flush(){
+  const items=Object.entries(pending).map(([k,v])=>({k,v}));
+  if(!items.length||!API)return;
+  try{
+    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'ds_set',items})});
+    const j=await res.json(); if(!j.ok)throw new Error(j.error||'رفض الخادم');
+    items.forEach(it=>{if(JSON.stringify(pending[it.k])===JSON.stringify(it.v))delete pending[it.k];});
+    setState(true);
+  }catch(e){setState(false,e.message);}
+}
+async function pull(){
+  if(!API)return false;
+  try{
+    const res=await fetch(API+(API.includes('?')?'&':'?')+'action=ds_get'); const j=await res.json();
+    if(!j.ok)throw new Error(j.error||'رفض الخادم');
+    if(!j.items||typeof j.items!=='object')throw new Error('Apps Script لم يُحدَّث بعد');   // السكربت القديم يرجع الحوالات بدل الحقول اليدوية
+    const items=j.items;
+    if(!Object.keys(items).length){                // أول استخدام: نرفع ما هو محفوظ محلياً
+      Object.entries(S.banks).forEach(([b,v])=>pending['bank:'+b]=v);
+      Object.entries(S.rows).forEach(([k,v])=>pending['row:'+k]=v);
+      ['rate','comm','balDate'].forEach(k=>pending['set:'+k]=S[k]);
+      await flush(); return true;
+    }
+    S.banks={};S.rows={};
+    Object.entries(items).forEach(([k,v])=>applyKey(k,v));      // الخادم هو المرجع
+    Object.entries(pending).forEach(([k,v])=>applyKey(k,v));    // ثم أعد تطبيق تغييراتي التي لم تُرسل
+    save(); setState(true); flush(); return true;
+  }catch(e){setState(false,e.message);return false;}
+}
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f2=n=>(+n||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+const f0=n=>(+n||0).toLocaleString('en',{maximumFractionDigits:0});
+const num=v=>parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;
+const rkey=r=>[r._sheet,r.invoice,r.po,r.amount,r.date].join('|');   // هوية الدفعة
+const isPaid=r=>/\d{1,2}\/\d{1,2}\/\d{4}/.test(r.swift||'');         // سويفت بتاريخ = مسدَّدة
+let keys=[],banks=[];
+
+const COS=['الفالة','وهج الماسة','زهور الامل'];
+const co=r=>/fala/i.test(r.from_co||'')?'الفالة':/zuhor|zhour/i.test(r.from_co||'')?'زهور الامل':'وهج الماسة';
+function baseRows(){
+  if(typeof sheets==='undefined')return [];
+  return sheets.flatMap(s=>s.rows)
+    .filter(r=>!r.rejected&&(S.mode==='all'||!isPaid(r))&&(S.mode!=='unpaid'||!r.pendingTransfer))
+    .sort((a,b)=>(pd(b.date)||0)-(pd(a.date)||0));
+}
+const getRows=()=>baseRows().filter(r=>(!S.fb||r.bank===S.fb)&&(!S.fc||co(r)===S.fc));
+const opt=(v,t,sel)=>'<option value="'+esc(v)+'"'+(sel?' selected':'')+'>'+esc(t)+'</option>';
+function render(){
+  const B=baseRows(), R=getRows(), rate=+S.rate||0, cm=+S.comm||0, req={};
+  R.forEach(r=>{const b=r.bank||'—';req[b]=(req[b]||0)+(r.amount||0)*rate*(1+cm);});
+  banks=[...new Set(Object.keys(req).concat(Object.keys(S.banks)))].filter(b=>!S.fb||b===S.fb);
+  keys=R.map(rkey);
+  const balTot=banks.reduce((s,b)=>s+(+S.banks[b]||0),0), reqTot=banks.reduce((s,b)=>s+(req[b]||0),0);
+  const usdTot=R.reduce((s,r)=>s+(r.amount||0),0), iqdTot=usdTot*rate;
+  const bankOpts=[...new Set(B.map(r=>r.bank).filter(Boolean))];
+  let h='<div class="ds-top">'+
+   '<label>سعر الصرف (دينار / $)<input value="'+S.rate+'" onchange="_ds.rate(this.value)"></label>'+
+   '<label>نسبة العمولة البنكية<input value="'+S.comm+'" onchange="_ds.comm(this.value)"></label>'+
+   '<label>الرصيد البنكي لغاية يوم<input type="date" value="'+esc(S.balDate)+'" onchange="_ds.bdate(this.value)"></label>'+
+   '<label>المصرف<select onchange="_ds.fb(this.value)">'+opt('','كل المصارف',!S.fb)+bankOpts.map(b=>opt(b,b,S.fb===b)).join('')+'</select></label>'+
+   '<label>الشركة المستوردة<select onchange="_ds.fc(this.value)">'+opt('','كل الشركات',!S.fc)+COS.map(c=>opt(c,c,S.fc===c)).join('')+'</select></label>'+
+   '<label>الحوالات المعروضة<select onchange="_ds.mode(this.value)">'+opt('unpaid','مقدَّمة / معلّقة بلا سويفت',S.mode==='unpaid')+opt('withPending','+ طلبات مثبَّتة بانتظار التحويل',S.mode==='withPending')+opt('all','الكل (شاملة المسدَّدة)',S.mode==='all')+'</select></label>'+
+   '<label>&nbsp;<button style="padding:7px 12px;border-radius:7px;border:1px solid #CBD5E1;cursor:pointer;font-family:inherit" onclick="_ds.addBank()">＋ إضافة مصرف</button></label></div>'+
+   '<div class="ds-note">الحقول الملونة (أصفر فاتح) تُدخل يدوياً وتُحفظ تلقائياً على هذا الجهاز؛ العمولة = المعادل بالدينار × النسبة، وتدخل ضمن المطلوب لكل مصرف.</div>'+
+   '<table class="ds-t"><tr><th>المصرف</th><th>الرصيد المعتمد (دينار) — يدوي</th><th>المطلوب شامل العمولة (دينار)</th><th>الصافي</th></tr>'+
+   banks.map((b,i)=>{const bal=+S.banks[b]||0,net=bal-(req[b]||0);
+     return '<tr><td>'+esc(b)+'</td><td><input value="'+(bal||'')+'" onchange="_ds.bank('+i+',this.value)"></td><td>'+f2(req[b]||0)+'</td><td class="'+(net<0?'neg':'pos')+'">'+f2(net)+(net<0?' (عجز)':' (فائض)')+'</td></tr>';}).join('')+
+   '<tr class="ds-sum"><td>الرصيد البنكي لغاية يوم '+esc(S.balDate||'—')+'</td><td>'+f0(balTot)+' د.ع · $'+f0(rate?balTot/rate:0)+'</td><td>'+f0(reqTot)+'</td><td>'+f0(balTot-reqTot)+'</td></tr></table>'+
+   '<table class="ds-t"><tr><th>P.O</th><th>مبلغ الحوالة ($)</th><th>المعادل بالدينار</th><th>العمولة البنكية (دينار)</th><th>تاريخ تقديم الحوالة</th><th>تاريخ إصدار السويفت</th><th>المصرف المصدِّر</th><th>اسم العميل</th><th>رقم الفاتورة</th><th>وصف البضاعة</th><th>عدد الحاويات</th><th>تاريخ التحويل (يدوي)</th><th>التفاصيل</th></tr>';
+  h+=R.map((r,i)=>{
+    const m=S.rows[keys[i]]||{}, full=(typeof getFullShip==='function'&&getFullShip(r.po))||{}, sh=(typeof getShipmentInfo==='function'&&getShipmentInfo(r.po))||{};
+    const det=m.d!=null?m.d:('حوالة '+(full.details||'')), iqd=(r.amount||0)*rate;
+    return '<tr class="'+(m.t?'':'red')+'"><td><span class="ds-po" onclick="openModal(\''+esc(r.po)+'\')">'+esc(r.po||'—')+'</span></td>'+
+     '<td>$'+f0(r.amount)+'</td><td>'+f2(iqd)+'</td><td>'+f2(iqd*cm)+'</td><td>'+esc(r.date||'—')+'</td><td>'+(r.swift?esc(r.swift):'لم يتم الإصدار بعد')+'</td><td>'+esc(r.bank||'—')+'</td>'+
+     '<td>'+esc(r.to_co||'—')+'</td><td>'+esc(r.invoice||'—')+'</td><td>'+esc(full.details||'—')+'</td><td>'+esc(sh.containerCount||'')+'</td>'+
+     '<td><input type="date" value="'+esc(m.t||'')+'" onchange="_ds.row('+i+',\'t\',this.value)">'+(m.t?'':'<div>لم يتم التحويل بعد</div>')+'</td>'+
+     '<td><input value="'+esc(det)+'" onchange="_ds.row('+i+',\'d\',this.value)"></td></tr>';}).join('');
+  h+='<tr class="ds-sum"><td>الإجمالي ('+R.length+' حوالة)</td><td>$'+f0(usdTot)+'</td><td>'+f2(iqdTot)+'</td><td>'+f2(iqdTot*cm)+'</td><td colspan="9"></td></tr></table>';
+  document.getElementById('dsBody').innerHTML=h;
+}
+window._ds={
+  rate:v=>{S.rate=num(v)||S.rate;put('set:rate',S.rate);render();},
+  comm:v=>{S.comm=num(v);put('set:comm',S.comm);render();},
+  bdate:v=>{S.balDate=v;put('set:balDate',v);render();},
+  mode:v=>{S.mode=v;save();render();},
+  fb:v=>{S.fb=v;save();render();},
+  fc:v=>{S.fc=v;save();render();},
+  bank:(i,v)=>{const b=banks[i];S.banks[b]=num(v);put('bank:'+b,S.banks[b]);render();},
+  addBank:()=>{const n=prompt('اسم المصرف:');if(n&&n.trim()){const t=n.trim();S.banks[t]=S.banks[t]||0;put('bank:'+t,S.banks[t]);render();}},
+  row:(i,f,v)=>{const k=keys[i];S.rows[k]=Object.assign({},S.rows[k],{[f]:v});put('row:'+k,S.rows[k]);render();},
+  sync:()=>pull().then(()=>{if(isOpen()&&!editing())render();}),
+  open:()=>{render();document.getElementById('dsOv').classList.add('open');pull().then(ok=>{if(ok&&!editing())render();});},
+  close:()=>document.getElementById('dsOv').classList.remove('open'),
+  csv:()=>{const R=getRows(),rate=+S.rate||0,cm=+S.comm||0;
+    const hd=['P.O','مبلغ الحوالة $','المعادل بالدينار','العمولة البنكية','تاريخ تقديم الحوالة','تاريخ إصدار السويفت','المصرف المصدِّر','الشركة','اسم العميل','رقم الفاتورة','وصف البضاعة','عدد الحاويات','تاريخ التحويل','التفاصيل'];
+    const body=R.map(r=>{const m=S.rows[rkey(r)]||{},full=(getFullShip&&getFullShip(r.po))||{},sh=(getShipmentInfo&&getShipmentInfo(r.po))||{},iqd=(r.amount||0)*rate;
+      return [r.po,r.amount,iqd,iqd*cm,r.date,r.swift||'لم يتم الإصدار بعد',r.bank,co(r),r.to_co,r.invoice,full.details||'',sh.containerCount||'',m.t||'لم يتم التحويل بعد',m.d!=null?m.d:'حوالة '+(full.details||'')].map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',');});
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+[hd.join(','),...body].join('\n')],{type:'text/csv;charset=utf-8'}));
+    a.download='due-statement_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
+};
+function boot(){
+  if(window.__dsBooted)return; window.__dsBooted=true;
+  const ov=document.createElement('div');ov.id='dsOv';
+  ov.innerHTML='<div class="ds-box"><div class="ds-h"><b>📋 كشف الحوالات المستحقة وأرصدة المصارف</b> <small id="dsSync" style="margin-right:10px;font-size:11px">…</small><span><button onclick="_ds.sync()">🔄 مزامنة</button><button onclick="_ds.csv()">📤 CSV</button><button onclick="window.print()">🖨 طباعة</button><button onclick="_ds.close()">✕ إغلاق</button></span></div><div class="ds-b" id="dsBody"></div></div>';
+  ov.addEventListener('click',e=>{if(e.target===ov)_ds.close();});
+  document.body.appendChild(ov);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')_ds.close();});
+  // أي تحديث للبيانات الرئيسية (سويفت جديد مثلاً) يُعيد رسم الكشف فتختفي الحوالة المسدَّدة تلقائياً
+  if(typeof window.processData==='function'){const _p=window.processData;window.processData=function(j){const r=_p(j);if(isOpen()&&!editing())render();return r;};}
+  setInterval(()=>{if(isOpen()&&!editing())pull().then(()=>{if(!editing())render();});},60000);   // التقاط تعديلات الزملاء
+  pull();
+  const rf=document.getElementById('rfbtn');
+  if(rf){const b=document.createElement('button');b.id='dsBtn';b.textContent='📋 كشف المستحقات';b.onclick=_ds.open;rf.parentNode.insertBefore(b,rf);}
+}
+if(document.readyState==='complete')boot(); else window.addEventListener('load',boot);
+})();
+</script>
 
 </body>
 </html>
