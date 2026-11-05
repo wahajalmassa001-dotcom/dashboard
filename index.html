@@ -2328,6 +2328,14 @@ const CFG={
   useEstimates:true, // false = الاعتماد على عمود تاريخ الاستحقاق فقط (يُنصح بعد تعبئة العمود)
 };
 const DAY=86400000;
+const hasDate=s=>{s=String(s==null?'':s);return /\d{1,2}[\/\\.\-]\d{1,2}[\/\\.\-]\d{4}/.test(s)||/\d{4}[\/\\.\-]\d{1,2}[\/\\.\-]\d{1,2}/.test(s)||/^[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(s);};   // أي صيغة تاريخ = السويفت صدر
+// الداشبورد الأصلي لا يحوّل yyyy/mm/dd (صيغة بعض خلايا السويفت) فتبقى نصاً ويُفسد الفرز والكشف؛ نحوّلها إلى dd/mm/yyyy قبل الدالة الأصلية
+(function(){const _nd=window.normalizeDate;
+  if(typeof _nd!=='function'||window.__ndFixed)return;window.__ndFixed=true;
+  window.normalizeDate=function(v){const s=String(v==null?'':v).trim();
+    const m=s.match(/^(\d{4})[\/.](\d{1,2})[\/.](\d{1,2})(?:[\sT].*)?$/);
+    if(m)return String(m[3]).padStart(2,'0')+'/'+String(m[2]).padStart(2,'0')+'/'+m[1];
+    return _nd(v);};})();
 const rk=r=>[r._sheet,r.invoice,r.po,r.amount,r.date].join('|');   // هوية الدفعة: الفاتورة وحدها لا تكفي مع الدفعات المجزأة
 let DUE=[], DUE_EXPLICIT={};
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -2371,7 +2379,7 @@ function computeDue(){
       lvl:days<0?'over':days===0?'today':'soon'});
   };
   all.forEach(r=>{
-    const paid=/\d{1,2}\/\d{1,2}\/\d{4}/.test(r.swift||'');
+    const paid=hasDate(r.swift);
     if(paid)return;                       // تاريخ صدور السويفت موجود = الدفعة مسدَّدة/مغلقة (لا إشعار مهما كانت الملاحظات أو حالة الطلب)
     const ex=DUE_EXPLICIT[rk(r)];
     // أ) تاريخ استحقاق صريح من الشيت لهذه الدفعة تحديداً
@@ -2542,7 +2550,7 @@ const f2=n=>(+n||0).toLocaleString('en',{minimumFractionDigits:2,maximumFraction
 const f0=n=>(+n||0).toLocaleString('en',{maximumFractionDigits:0});
 const num=v=>parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;
 const rkey=r=>[r._sheet,r.invoice,r.po,r.amount,r.date].join('|');   // هوية الدفعة
-const isPaid=r=>/\d{1,2}\/\d{1,2}\/\d{4}/.test(r.swift||'');         // سويفت بتاريخ = مسدَّدة
+const isPaid=r=>{const s=String(r.swift==null?'':r.swift);return /\d{1,2}[\/\\.\-]\d{1,2}[\/\\.\-]\d{4}/.test(s)||/\d{4}[\/\\.\-]\d{1,2}[\/\\.\-]\d{1,2}/.test(s)||/^[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(s);};         // سويفت بتاريخ = مسدَّدة
 let keys=[],banks=[];
 
 const COS=['الفالة','وهج الماسة','زهور الامل'];
