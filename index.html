@@ -2329,6 +2329,9 @@ const CFG={
 };
 const DAY=86400000;
 const hasDate=s=>{s=String(s==null?'':s);return /\d{1,2}[\/\\.\-]\d{1,2}[\/\\.\-]\d{4}/.test(s)||/\d{4}[\/\\.\-]\d{1,2}[\/\\.\-]\d{1,2}/.test(s)||/^[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(s);};   // أي صيغة تاريخ = السويفت صدر
+const rowText=r=>[r.swift,r.notes,r.n2raw].join(' ');
+const isReserved=r=>/حجز/.test(rowText(r));                         // «تم حجز المبلغ» = سُحب من رصيد البنك = حوالة بالطريق، وليست مستحقة
+const isAudit=r=>!isReserved(r)&&/قيد التدقيق/.test(rowText(r));    // «قيد التدقيق» فقط هي المستحقة (لم يُسحب مبلغها بعد)
 // الداشبورد الأصلي لا يحوّل yyyy/mm/dd (صيغة بعض خلايا السويفت) فتبقى نصاً ويُفسد الفرز والكشف؛ نحوّلها إلى dd/mm/yyyy قبل الدالة الأصلية
 (function(){const _nd=window.normalizeDate;
   if(typeof _nd!=='function'||window.__ndFixed)return;window.__ndFixed=true;
@@ -2380,12 +2383,13 @@ function computeDue(){
   };
   all.forEach(r=>{
     const paid=hasDate(r.swift);
-    if(paid)return;                       // تاريخ صدور السويفت موجود = الدفعة مسدَّدة/مغلقة (لا إشعار مهما كانت الملاحظات أو حالة الطلب)
+    if(paid)return;
+    if(isReserved(r))return;                // محجوزة = حوالة بالطريق: لا إشعار استحقاق                       // تاريخ صدور السويفت موجود = الدفعة مسدَّدة/مغلقة (لا إشعار مهما كانت الملاحظات أو حالة الطلب)
     const ex=DUE_EXPLICIT[rk(r)];
     // أ) تاريخ استحقاق صريح من الشيت لهذه الدفعة تحديداً
     if(ex){ add(r,pd(ex),'تاريخ الاستحقاق المسجَّل في الشيت'); return; }
     // ب) حوالة معلّقة لم يصل سويفتها
-    if(CFG.useEstimates&&!paid&&(r.pending||/تم التقديم|تقديم/.test(r.swift||''))&&pd(r.date)){
+    if(CFG.useEstimates&&isAudit(r)&&pd(r.date)){
       const el=Math.floor((T-pd(r.date))/DAY);          // الأيام المنقضية منذ تاريخ الحوالة
       if(el>=CFG.stuckMin)add(r,pd(r.date)+CFG.stuckMax*DAY,'حوالة مقدَّمة بانتظار السويفت منذ '+el+' يوماً (مهلة التدقيق المعتادة '+CFG.stuckMin+'–'+CFG.stuckMax+' يوماً)',true);
       return;
@@ -2503,7 +2507,7 @@ if(document.readyState==='complete')boot(); else window.addEventListener('load',
 (function(){
 const KEY='wahaj_ds_v2';
 // حقول يدوية تُحفظ في متصفح هذا الجهاز (localStorage)
-let S={rate:1520,comm:0.003,balDate:'',banks:{},rows:{},mode:'unpaid',fb:'',fc:''};
+let S={rate:1520,comm:0.003,balDate:'',banks:{},rows:{},view:'audit',fb:'',fc:''};
 try{const o=JSON.parse(localStorage.getItem('wahaj_ds_v1')||'{}');delete o.rate;Object.assign(S,o,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
 
@@ -2549,6 +2553,9 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const f2=n=>(+n||0).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
 const f0=n=>(+n||0).toLocaleString('en',{maximumFractionDigits:0});
 const num=v=>parseFloat(String(v).replace(/[^0-9.\-]/g,''))||0;
+const rowText=r=>[r.swift,r.notes,r.n2raw].join(' ');
+const isReserved=r=>/حجز/.test(rowText(r));                         // تم حجز المبلغ = سُحب من الرصيد = حوالة بالطريق
+const isAudit=r=>!isReserved(r)&&/قيد التدقيق/.test(rowText(r));    // قيد التدقيق = المستحق الفعلي
 const rkey=r=>[r._sheet,r.invoice,r.po,r.amount,r.date].join('|');   // هوية الدفعة
 const isPaid=r=>{const s=String(r.swift==null?'':r.swift);return /\d{1,2}[\/\\.\-]\d{1,2}[\/\\.\-]\d{4}/.test(s)||/\d{4}[\/\\.\-]\d{1,2}[\/\\.\-]\d{1,2}/.test(s)||/^[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(s);};         // سويفت بتاريخ = مسدَّدة
 let keys=[],banks=[];
@@ -2558,7 +2565,17 @@ const co=r=>/fala/i.test(r.from_co||'')?'الفالة':/zuhor|zhour/i.test(r.fro
 function baseRows(){
   if(typeof sheets==='undefined')return [];
   return sheets.flatMap(s=>s.rows)
-    .filter(r=>!r.rejected&&(S.mode==='all'||!isPaid(r))&&(S.mode!=='unpaid'||!r.pendingTransfer))
+    .filter(r=>{
+      if(r.rejected)return false;
+      const v=S.view;
+      if(v==='all')return true;
+      if(isPaid(r))return false;
+      if(v==='withPending')return true;
+      if(r.pendingTransfer)return false;
+      if(v==='audit')return isAudit(r);        // الافتراضي: قيد التدقيق فقط
+      if(v==='transit')return isReserved(r);   // تم حجز المبلغ = حوالات بالطريق
+      return true;                              // 'unpaid': كل ما بلا سويفت
+    })
     .sort((a,b)=>(pd(b.date)||0)-(pd(a.date)||0));
 }
 const getRows=()=>baseRows().filter(r=>(!S.fb||r.bank===S.fb)&&(!S.fc||co(r)===S.fc));
@@ -2577,9 +2594,9 @@ function render(){
    '<label>الرصيد البنكي لغاية يوم<input type="date" value="'+esc(S.balDate)+'" onchange="_ds.bdate(this.value)"></label>'+
    '<label>المصرف<select onchange="_ds.fb(this.value)">'+opt('','كل المصارف',!S.fb)+bankOpts.map(b=>opt(b,b,S.fb===b)).join('')+'</select></label>'+
    '<label>الشركة المستوردة<select onchange="_ds.fc(this.value)">'+opt('','كل الشركات',!S.fc)+COS.map(c=>opt(c,c,S.fc===c)).join('')+'</select></label>'+
-   '<label>الحوالات المعروضة<select onchange="_ds.mode(this.value)">'+opt('unpaid','مقدَّمة / معلّقة بلا سويفت',S.mode==='unpaid')+opt('withPending','+ طلبات مثبَّتة بانتظار التحويل',S.mode==='withPending')+opt('all','الكل (شاملة المسدَّدة)',S.mode==='all')+'</select></label>'+
+   '<label>الحوالات المعروضة<select onchange="_ds.mode(this.value)">'+opt('audit','المستحقات: قيد التدقيق فقط',S.view==='audit')+opt('transit','حوالات بالطريق: تم حجز المبلغ',S.view==='transit')+opt('unpaid','كل ما بلا سويفت',S.view==='unpaid')+opt('withPending','+ طلبات مثبَّتة بانتظار التحويل',S.view==='withPending')+opt('all','الكل (شاملة المسدَّدة)',S.view==='all')+'</select></label>'+
    '<label>&nbsp;<button style="padding:7px 12px;border-radius:7px;border:1px solid #CBD5E1;cursor:pointer;font-family:inherit" onclick="_ds.addBank()">＋ إضافة مصرف</button></label></div>'+
-   '<div class="ds-note">الحقول الملونة (أصفر فاتح) تُدخل يدوياً وتُحفظ تلقائياً على هذا الجهاز؛ العمولة = المعادل بالدينار × النسبة، وتدخل ضمن المطلوب لكل مصرف.</div>'+
+   '<div class="ds-note">الحقول الملونة (أصفر فاتح) تُدخل يدوياً وتُحفظ تلقائياً على هذا الجهاز؛ العمولة = المعادل بالدينار × النسبة، وتدخل ضمن المطلوب لكل مصرف. المستحق = «قيد التدقيق» فقط؛ «تم حجز المبلغ» سُحب من رصيد البنك فهو حوالة بالطريق، وتختفي أي حوالة بمجرد صدور تاريخ السويفت.</div>'+
    '<table class="ds-t"><tr><th>المصرف</th><th>الرصيد المعتمد (دينار) — يدوي</th><th>المطلوب شامل العمولة (دينار)</th><th>الصافي</th></tr>'+
    banks.map((b,i)=>{const bal=+S.banks[b]||0,net=bal-(req[b]||0);
      return '<tr><td>'+esc(b)+'</td><td><input value="'+(bal||'')+'" onchange="_ds.bank('+i+',this.value)"></td><td>'+f2(req[b]||0)+'</td><td class="'+(net<0?'neg':'pos')+'">'+f2(net)+(net<0?' (عجز)':' (فائض)')+'</td></tr>';}).join('')+
@@ -2600,7 +2617,7 @@ window._ds={
   rate:v=>{S.rate=num(v)||S.rate;put('set:rate',S.rate);render();},
   comm:v=>{S.comm=num(v);put('set:comm',S.comm);render();},
   bdate:v=>{S.balDate=v;put('set:balDate',v);render();},
-  mode:v=>{S.mode=v;save();render();},
+  mode:v=>{S.view=v;save();render();},
   fb:v=>{S.fb=v;save();render();},
   fc:v=>{S.fc=v;save();render();},
   bank:(i,v)=>{const b=banks[i];S.banks[b]=num(v);put('bank:'+b,S.banks[b]);render();},
